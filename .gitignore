@@ -1,0 +1,12 @@
+test
+node_modules
+.env
+.qodo
+dist
+
+# Supabase local volumes and temp files
+supabase/.temp/
+supabase/volumes/
+
+# Supabase secrets if any
+.env

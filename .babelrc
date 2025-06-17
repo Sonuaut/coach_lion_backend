@@ -1,0 +1,19 @@
+{
+    "presets": ["@babel/preset-env"],
+    "plugins": [
+        [
+            "module-resolver",
+            {
+                "root": ["./dist"],
+                "alias": {
+                    "@routes": "./dist/routes",
+                    "@controllers": "./dist/controllers",
+                    "@middlewares": "./dist/middlewares",
+                    "@utils": "./dist/utils",
+                    "@config": "./dist/config",
+                    "@infrastructure": "./dist/infrastructure"
+                }
+            }
+        ]
+    ]
+}

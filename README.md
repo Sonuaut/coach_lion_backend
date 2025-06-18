@@ -109,10 +109,3 @@ npx prisma migrate deploy
 ```bash
 npx prisma db pull
 ```
-
-```
-
----
-
-Let me know if you'd like to include Docker setup steps or scripts too!
-```

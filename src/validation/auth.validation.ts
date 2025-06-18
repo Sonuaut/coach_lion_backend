@@ -38,8 +38,55 @@ export const signinSchema = z.object({
         .max(50, "Password must be less than 50 characters")
 });
 
-// Forgot password validation schema
+// Forgot password validation schema (step 1: send OTP and verify)
 export const forgotPasswordSchema = z.object({
+    email: z.string()
+        .email("Invalid email address")
+        .min(3, "Email must be at least 3 characters")
+        .max(254, "Email must be less than 254 characters")
+        .regex(
+            /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/,
+            "Invalid email format"
+        ),
+    otp: z.string()
+        .length(6, "OTP must be exactly 6 characters")
+        .regex(/^\d{6}$/, "OTP must be a 6-digit number")
+});
+
+// Reset password validation schema (step 2: reset password with token)
+export const resetPasswordSchema = z.object({
+    newPassword: z.string()
+        .min(6, "Password must be at least 6 characters")
+        .max(50, "Password must be less than 50 characters")
+        .regex(
+            /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{6,}$/,
+            "Password must contain at least one uppercase letter, one lowercase letter, one number and one special character"
+        ),
+    confirmPassword: z.string()
+        .min(6, "Password must be at least 6 characters")
+        .max(50, "Password must be less than 50 characters")
+}).refine((data) => data.newPassword === data.confirmPassword, {
+    message: "Passwords don't match",
+    path: ["confirmPassword"]
+});
+
+// Verify OTP validation schema
+export const verifyOTPSchema = z.object({
+    email: z.string()
+        .email("Invalid email address")
+        .min(3, "Email must be at least 3 characters")
+        .max(254, "Email must be less than 254 characters")
+        .regex(
+            /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/,
+            "Invalid email format"
+        ),
+    otp: z.string()
+        .length(6, "OTP must be exactly 6 characters")
+        .regex(/^\d{6}$/, "OTP must be a 6-digit number")
+});
+
+// Resend OTP validation schema
+export const resendOTPSchema = z.object({
     email: z.string()
         .email("Invalid email address")
         .min(3, "Email must be at least 3 characters")
@@ -50,17 +97,9 @@ export const forgotPasswordSchema = z.object({
         )
 });
 
-// Reset password validation schema
-export const resetPasswordSchema = z.object({
-    password: z.string()
-        .min(6, "Password must be at least 6 characters")
-        .max(50, "Password must be less than 50 characters")
-        .regex(
-            /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{6,}$/,
-            "Password must contain at least one uppercase letter, one lowercase letter, one number and one special character"
-        ),
-    confirmPassword: z.string()
-}).refine((data) => data.password === data.confirmPassword, {
-    message: "Passwords don't match",
-    path: ["confirmPassword"]
+// Refresh token validation schema
+export const refreshTokenSchema = z.object({
+    refreshToken: z.string()
+        .min(1, "Refresh token is required")
+        .optional()
 }); 

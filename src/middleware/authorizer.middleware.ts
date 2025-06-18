@@ -1,53 +1,68 @@
 import { Request, Response, NextFunction } from "express";
-import { verifyToken } from "../utils/helper";
-import { supabase } from "../config/supabase";
+import { verifyAccessToken } from "../utils/helper";
+import { throwBusinessError } from "../utils/error.utils";
+
+// Extend Request interface to include user
+declare global {
+    namespace Express {
+        interface Request {
+            user?: {
+                userId: string;
+                email: string;
+                name: string;
+            } | null;
+        }
+    }
+}
 
 export const authenticate = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const token = req.headers.authorization?.split(" ")[1];
+        // Get token from cookie first, then from Authorization header
+        let token = req.cookies?.accessToken;
         if (!token) {
-            return res.status(401).json({ success: false, error: "Unauthorized: No token provided" });
+            const authHeader = req.headers.authorization;
+            if (authHeader && authHeader.startsWith('Bearer ')) {
+                token = authHeader.substring(7);
+            }
         }
 
-        const { data: { user }, error } = await supabase.auth.getUser(token);
-        
-        if (error || !user) {
-            return res.status(401).json({ success: false, error: "Unauthorized: Invalid token" });
-        }
-
-        req.body.loggedInUser = user;
+        throwBusinessError(!token, 'Access token is required');
+        // Verify the token
+        const decoded = verifyAccessToken(token);
+        throwBusinessError(!decoded, 'Invalid or expired access token');
+        // Attach user info to request
+        req.body.loggedInUser = decoded;
         next();
-    } catch (error) {
-        return res.status(401).json({ success: false, error: "Unauthorized: Token verification failed" });
+    } catch (error: any) {
+        res.status(401).json({
+            success: false,
+            message: error.message || 'Authentication failed',
+            error: 'UNAUTHORIZED'
+        });
     }
 };
 
-const VALID_ROLES = ["owner", "admin", "trainer", "member"] as const;
-type ValidRole = (typeof VALID_ROLES)[number];
-export const authorizeRole = (allowedRoles: ValidRole[]) => {
-    return async (req: Request, res: Response, next: NextFunction) => {
-        try {
-            // Extract token from Authorization header
-            const token = req.headers.authorization?.split(" ")[1];
-            if (!token) {
-                return res.status(401).json({ success: false, error: "Unauthorized: No token provided" });
-            }
+// Optional authentication middleware (doesn't throw error if no token)
+export const optionalAuth = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        let token = req.cookies?.accessToken;
 
-            // Verify and decode the token
-            const userData = verifyToken(token);
-            if (!userData || !userData._id || !userData.role) {
-                return res.status(401).json({ success: false, error: "Unauthorized: Invalid token" });
+        if (!token) {
+            const authHeader = req.headers.authorization;
+            if (authHeader && authHeader.startsWith('Bearer ')) {
+                token = authHeader.substring(7);
             }
-
-            // Ensure user has permission
-            if (!allowedRoles.includes(userData.role as ValidRole)) {
-                return res.status(403).json({ success: false, error: "Access Denied: Insufficient permissions." });
-            }
-
-            req.body.loggedInUser = userData;
-            next();
-        } catch (error) {
-            return res.status(401).json({ success: false, error: "Unauthorized: Token verification failed" });
         }
-    };
-};
+
+        if (token) {
+            const decoded = verifyAccessToken(token);
+            if (decoded) {
+                req.user = decoded;
+            }
+        }
+
+        next();
+    } catch (error) {
+        next();
+    }
+}; 

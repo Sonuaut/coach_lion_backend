@@ -10,3 +10,5 @@ supabase/volumes/
 
 # Supabase secrets if any
 .env
+.vscode
+/src/generated/prisma

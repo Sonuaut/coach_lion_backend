@@ -1,11 +1,9 @@
 export interface IUser {
     id?: string;
     name: string;
-    phone: number;
-    email?: string;
+    email: string;
     password?: string;
-    isActive?: boolean;
-    created_at?: string;
-    updated_at?: string;
+    createdAt?: Date;
+    updatedAt?: Date;
 }
    

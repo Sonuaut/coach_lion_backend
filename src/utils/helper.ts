@@ -61,3 +61,84 @@ export const verifyToken = (token: string): { _id: string; role: string } | null
         return null;
     }
 };
+
+// 🔢 Generate 6-digit OTP
+export const generateOTP = (): string => {
+    return Math.floor(100000 + Math.random() * 900000).toString();
+};
+
+// 🎫 Generate Access Token (short-lived)
+export const generateAccessToken = (payload: { userId: string; email: string; name: string }): string => {
+    return jwt.sign(payload, JWT_SECRET, { 
+        expiresIn: '15m', // 15 minutes
+        issuer: 'auth-service',
+        audience: 'user'
+    });
+};
+
+// 🔄 Generate Refresh Token (long-lived)
+export const generateRefreshToken = (payload: { userId: string; email: string }): string => {
+    return jwt.sign(payload, JWT_SECRET, { 
+        expiresIn: '7d', // 7 days
+        issuer: 'auth-service',
+        audience: 'refresh'
+    });
+};
+
+// ✅ Verify Access Token
+export const verifyAccessToken = (token: string): { userId: string; email: string; name: string } | null => {
+    try {
+        const decoded = jwt.verify(token, JWT_SECRET, {
+            issuer: 'auth-service',
+            audience: 'user'
+        }) as { userId: string; email: string; name: string };
+        return decoded;
+    } catch (error) {
+        console.error("Access token verification failed:", error);
+        return null;
+    }
+};
+
+// ✅ Verify Refresh Token
+export const verifyRefreshToken = (token: string): { userId: string; email: string } | null => {
+    try {
+        const decoded = jwt.verify(token, JWT_SECRET, {
+            issuer: 'auth-service',
+            audience: 'refresh'
+        }) as { userId: string; email: string };
+        return decoded;
+    } catch (error) {
+        console.error("Refresh token verification failed:", error);
+        return null;
+    }
+};
+
+// 🍪 Set HTTP-only cookies
+export const setAuthCookies = (res: any, refreshToken: string) => {
+    res.cookie('refreshToken', refreshToken, {
+        httpOnly: true,
+        secure: CommonVariables.NODE_ENV === 'production', 
+        sameSite: 'strict',
+        maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+        path: '/api/v1/auth/refresh' // Only accessible on refresh endpoint
+    });
+};
+
+// 🧹 Clear auth cookies
+export const clearAuthCookies = (res: any) => {
+    res.clearCookie('accessToken', {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'strict',
+        path: '/'
+    });
+
+    res.clearCookie('refreshToken', {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'strict',
+        path: '/api/v1/auth/refresh'
+    });
+};
+
+

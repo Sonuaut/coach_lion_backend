@@ -1,68 +1,130 @@
 import { IUser } from "../types/user";
-import { AuthDatabase } from "../database/implementations/supabase/authdb";
+import { AuthDatabase } from "../database/implementations/prisma/authdb";
 import { throwBusinessError } from "../utils/error.utils";
-import { sendEmail } from "../utils/email.utils";
+import { sendOTPEmail } from "../utils/email.utils";
+import { generateOTP, ComparePassword, generateAccessToken, generateRefreshToken, verifyRefreshToken } from "../utils/helper";
 
 
 export default class AuthService {
     private _authdbService = new AuthDatabase();
 
     async signup(userData: Partial<IUser>) {
-        // const { name, password, email } = userData;
+        const { name, password, email } = userData;
         
-        // // Check if user exists
-        // const { data: existingUser, error } = await this._authdbService.getUserByEmail(email as string);
-        // throwBusinessError(existingUser, 'Email already registered. Please use a different email or try signing in.');
-        
-        // // Create user profile
-        // const data = await this._authdbService.signup({
-        //     name: name as string,
-        //     email: email as string
-        // });
+        // Check if user exists
+        const { data: existingUser, error } = await this._authdbService.getUserByEmail(email as string);
+        throwBusinessError(!!existingUser, 'Email already registered. Please use a different email or try signing in.');
+        const otp = generateOTP();
+        // Create user profile
+        const data = await this._authdbService.signup({
+            name: name as string,
+            email: email as string,
+            password: password as string,
+            otp: otp
+        });
 
-        // Generate and send OTP
-        // const otp = await this._authdbService.saveOTP(email as string);
-        await sendEmail("vaibhavtezan@gmail.com","testing","hellow orlds");
-
+        //send OTP
+        await sendOTPEmail(email as string, otp, name as string);
         return {
-            user: {
-                id: "jcdc",
-                name: "new name",
-                email: "new email"
-            },
+            user: data,
             message: 'Please check your email for verification code'
         };
     }
 
-    // async verifyOTP(email: string, otp: string) {
-    //     const isValid = await this._authdbService.verifyOTP(email, otp);
-    //     throwBusinessError(!isValid, "Invalid or expired OTP");
-        
-    //     await this._authdbService.markUserAsVerified(email);
-    //     return { message: "Email verified successfully" };
-    // }
+    async verifyOTP(email: string, otp: string) {
+        const { data: existingUser, error } = await this._authdbService.getUserByEmail(email as string);
+        throwBusinessError(!existingUser, "Email doesn't exist");
 
-    // async resendOTP(email: string) {
-    //     const otp = await this._authdbService.saveOTP(email);
-    //     await this._authdbService.sendVerificationEmail(email, otp);
-    //     return { message: "OTP sent successfully" };
-    // }
+        const isValid = await this._authdbService.verifyOTP(email, otp);
+        throwBusinessError(!isValid, "InValid Otp");
+        // Update user fields: mark as verified and clear OTP
+        await this._authdbService.updateUserFields(email, {
+            is_verified: true,
+            otp: null
+        });
+    }
 
-    // async signin(email: string, password: string) {
-    //     const authData = await this._authdbService.signIn(email, password);
-    //     throwBusinessError(!authData.user?.id, "Failed to login");
+    async resendOTP(email: string) {
+        const { data: existingUser, error } = await this._authdbService.getUserByEmail(email as string);
+        throwBusinessError(!existingUser, "Email doesn't exist");
+
+        const newOTP = generateOTP();
         
-    //     const profile = await this._authdbService.getUserProfile(authData.user.id);
+        // Update user with new OTP
+        await this._authdbService.updateUserFields(email, {
+            otp: newOTP
+        });
         
-    //     return {
-    //         user: {
-    //             id: authData.user.id,
-    //             name: profile?.name,
-    //             email: authData.user.email
-    //         },
-    //         session: authData.session
-    //     };
-    // }
+        // Send new OTP email
+        await sendOTPEmail(email, newOTP, existingUser!.name);
+    }
+
+    async signin(email: string, password: string) {
+        // Get user with hashed password
+        const user = await this._authdbService.signin(email, password);
+        throwBusinessError(!user, "Invalid email or password");
+        
+        
+        // Verify password
+        const isPasswordValid = await ComparePassword(password, user!.password);
+        throwBusinessError(!isPasswordValid, "Invalid email or password");
+
+        // Generate tokens
+        const accessToken = generateAccessToken({
+            userId: user!.id,
+            email: user!.email,
+            name: user!.name
+        });
+
+        const refreshToken = generateRefreshToken({
+            userId: user!.id,
+            email: user!.email
+        });
+
+        // Return user data without password and tokens
+        const { password: _, ...userWithoutPassword } = user!;
+        return {
+            user: userWithoutPassword,
+            accessToken,
+            refreshToken
+        };
+    }
+
+    async refreshToken(refreshToken: string) {
+        if (!refreshToken) {
+            throwBusinessError(true, "Refresh token is required");
+        }
+        
+        // Verify refresh token
+        const decoded = verifyRefreshToken(refreshToken);
+        if (!decoded) {
+            throwBusinessError(true, "Invalid refresh token");
+        }
+
+        // Get user to ensure they still exist
+        const { data: user, error } = await this._authdbService.getUserByEmail(decoded!.email);
+        if (!user) {
+            throwBusinessError(true, "User not found");
+        }
+
+        // Generate new access token
+        const newAccessToken = generateAccessToken({
+            userId: user!.id,
+            email: user!.email,
+            name: user!.name
+        });
+
+        // Generate new refresh token (optional - for better security)
+        const newRefreshToken = generateRefreshToken({
+            userId: user!.id,
+            email: user!.email
+        });
+
+        return {
+            accessToken: newAccessToken,
+            refreshToken: newRefreshToken
+        };
+    }
 
     // async forgotPassword(email: string) {
     //     if (!email) {
@@ -93,8 +155,73 @@ export default class AuthService {
     //     return { message: "Password reset successfully" };
     // }
 
-    // async logout() {
-    //     await this._authdbService.signOut();
-    //     return { message: "Successfully logged out" };
-    // }
+    async logout() {
+        // In a more advanced implementation, you might want to:
+        // 1. Add the refresh token to a blacklist in Redis
+        // 2. Track logout events
+        // 3. Invalidate all user sessions
+        
+        return { 
+            message: "Logged out successfully" 
+        };
+    }
+
+    async forgotPassword(email: string, otp: string) {
+        // Check if user exists
+        const { data: existingUser, error } = await this._authdbService.getUserByEmail(email);
+        throwBusinessError(!existingUser, "Email doesn't exist");
+
+        // Check if user is verified
+        throwBusinessError(!existingUser!.is_verified, "Email not verified. Please verify your email first.");
+
+        // Verify OTP
+        const isValid = await this._authdbService.verifyOTP(email, otp);
+        throwBusinessError(!isValid, "Invalid OTP");
+
+        // Generate tokens for password reset
+        const accessToken = generateAccessToken({
+            userId: existingUser!.id,
+            email: existingUser!.email,
+            name: existingUser!.name
+        });
+
+        const refreshToken = generateRefreshToken({
+            userId: existingUser!.id,
+            email: existingUser!.email
+        });
+
+        return {
+            message: "OTP verified successfully. You can now reset your password.",
+            accessToken,
+            refreshToken,
+            user: {
+                id: existingUser!.id,
+                name: existingUser!.name,
+                email: existingUser!.email,
+                is_verified: existingUser!.is_verified
+            }
+        };
+    }
+
+    async resetPassword(refreshToken: string, newPassword: string) {
+        // Verify refresh token
+        const decoded = verifyRefreshToken(refreshToken);
+        if (!decoded) {
+            throwBusinessError(true, "Invalid refresh token");
+        }
+
+        // Get user to ensure they still exist
+        const { data: user, error } = await this._authdbService.getUserByEmail(decoded!.email);
+        if (!user) {
+            throwBusinessError(true, "User not found");
+        }
+
+        // Update user password
+        const updatedUser = await this._authdbService.updateUserPassword(decoded!.email, newPassword);
+        
+        return {
+            message: "Password reset successfully",
+            user: updatedUser
+        };
+    }
 }

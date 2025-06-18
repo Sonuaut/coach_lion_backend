@@ -1,0 +1,8 @@
+-- AlterTable
+ALTER TABLE "Feedback" ALTER COLUMN "date" SET DATA TYPE TEXT;
+
+-- AlterTable
+ALTER TABLE "Mood" ALTER COLUMN "date" SET DATA TYPE TEXT;
+
+-- AlterTable
+ALTER TABLE "UserCheckin" ALTER COLUMN "date" SET DATA TYPE TEXT;

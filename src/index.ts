@@ -4,6 +4,9 @@ import cookieParser from "cookie-parser";
 import swaggerUi from "swagger-ui-express";
 import v1AuthRoutes from "./routes/v1/auth/auth.routes";
 import v1OnboardingRoutes from "./routes/v1/onboarding/onboarding.routes"
+import v1CheckinsRoutes from "./routes/v1/checkins/checkins.routes";
+import v1FeedbackRoutes from "./routes/v1/feedback/feedback.routes";
+import v1MoodRoutes from "./routes/v1/mood/mood.routes";
 import CommonVariables from "./config/index";
 import { errorHandler } from "./middleware/error.middleware";
 import { AuthDatabase } from "./database/implementations/prisma/authdb";
@@ -49,6 +52,9 @@ app.get("/api/v1/health", async (req: Request, res: Response) => {
 // Routes
 app.use("/api/v1/auth", v1AuthRoutes);
 app.use("/api/v1/onboarding",v1OnboardingRoutes)
+app.use("/api/v1/checkins", v1CheckinsRoutes);
+app.use("/api/v1/feedback", v1FeedbackRoutes);
+app.use("/api/v1/mood", v1MoodRoutes);
 
 // Error handling middleware
 app.use(errorHandler);

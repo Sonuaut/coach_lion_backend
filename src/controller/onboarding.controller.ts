@@ -1,6 +1,5 @@
 import { Request, Response } from 'express';
 import OnboardingService from '../service/onboarding.service';
-import { OnboardingRequest } from '../types/onboarding';
 
 const _onboardingService = new OnboardingService();
 

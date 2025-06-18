@@ -145,3 +145,9 @@ export const clearAuthCookies = (res: any) => {
 };
 
 
+
+export function getTodayDateString(date?: Date): string {
+    const d = date ? new Date(date) : new Date();
+    return d.toISOString().slice(0, 10); // 'YYYY-MM-DD'
+  }
+  

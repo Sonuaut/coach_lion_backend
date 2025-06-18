@@ -1,68 +1,70 @@
-# Authentication Service
+Sure! Here's a **clean `README.md` file** that only includes the **project setup instructions** in proper markdown format — no UI helper annotations, no flow explanations — just setup:
 
-A TypeScript-based authentication service using Supabase for authentication and database management.
+---
 
-## Features
+````markdown
+# Project Setup
 
-- User registration and authentication
-- Email and phone number verification
-- Session management
-- Secure password handling
-- TypeScript support
-- Express.js backend
+A Node.js + TypeScript backend using Supabase and Prisma.
 
-## Prerequisites
+## Installation
 
-- Node.js (v14 or higher)
-- npm or yarn
-- Supabase account
-- Redis server (for session management)
+1. Clone the repository:
 
-## Setup
+```bash
+git clone https://github.com/your-username/your-project.git
+cd your-project
+````
 
-1. Clone the repository
 2. Install dependencies:
-   ```bash
-   npm install
-   ```
 
-3. Create a `.env` file based on `.env.example`:
-   ```bash
-   cp .env.example .env
-   ```
+```bash
+npm install
+```
+
+3. Create a `.env` file based on the example:
+
+```bash
+cp .env.example .env
+```
 
 4. Update the `.env` file with your configuration:
-   - Get your Supabase URL and anon key from your Supabase project settings
-   - Set up a secure JWT secret
-   - Configure your Redis connection
 
-5. Create the required Supabase tables:
-   ```sql
-   create table public.users (
-     id uuid references auth.users on delete cascade,
-     name text not null,
-     phone numeric not null unique,
-     email text,
-     is_active boolean default true,
-     created_at timestamp with time zone default timezone('utc'::text, now()) not null,
-     updated_at timestamp with time zone default timezone('utc'::text, now()) not null,
-     primary key (id)
-   );
+**For local Supabase:**
 
-   -- Enable RLS
-   alter table public.users enable row level security;
+```env
+DATABASE_URL="postgresql://postgres:postgres@127.0.0.1:54329/postgres"
+SUPABASE_URL="http://127.0.0.1:54321"
+SUPABASE_KEY="your-local-service-role-key"
+JWT_SECRET="your-jwt-secret"
+```
 
-   -- Create policies
-   create policy "Users can view their own data" on public.users
-     for select using (auth.uid() = id);
+**For Supabase Cloud:**
 
-   create policy "Users can update their own data" on public.users
-     for update using (auth.uid() = id);
-   ```
+```env
+DATABASE_URL="postgresql://postgres:<password>@db.<project-ref>.supabase.co:5432/postgres"
+SUPABASE_URL="https://<project-ref>.supabase.co"
+SUPABASE_KEY="your-service-role-key"
+JWT_SECRET="your-jwt-secret"
+```
+
+5. (Optional) Run Supabase locally using Docker:
+
+```bash
+npx supabase start
+```
+
+6. Run Prisma setup:
+
+```bash
+npx prisma generate
+npx prisma migrate deploy
+```
 
 ## Development
 
-Run the development server:
+Start the development server:
+
 ```bash
 npm run dev
 ```
@@ -70,45 +72,47 @@ npm run dev
 ## Production
 
 Build and run the production server:
+
 ```bash
 npm run build
 npm start
 ```
 
-## API Endpoints
+## Adding or Modifying Tables
 
-### Authentication
+1. Modify `prisma/schema.prisma`
 
-- `POST /api/v1/auth/register` - Register a new user
-  ```json
-  {
-    "name": "John Doe",
-    "email": "john@example.com",
-    "phone": 1234567890,
-    "password": "securepassword"
-  }
-  ```
+2. Create a new migration:
 
-- `POST /api/v1/auth/login` - Login
-  ```json
-  {
-    "email": "john@example.com",
-    "password": "securepassword"
-  }
-  ```
+```bash
+npx prisma migrate dev --name <migration-name>
+```
 
-- `POST /api/v1/auth/logout` - Logout (requires authentication)
-- `GET /api/v1/auth/me` - Get current user profile (requires authentication)
+This will:
 
-## Error Handling
+* Create a new SQL migration
+* Apply it to your database
+* Regenerate the Prisma client
 
-The service uses a centralized error handling system with proper HTTP status codes and error messages.
+## Switching to Supabase Cloud
 
-## Security
+1. Replace the `DATABASE_URL` in `.env` with your Supabase Cloud URL
 
-- Password hashing using bcrypt
-- JWT for session management
-- Supabase Row Level Security (RLS)
-- Input validation using Zod
-- CORS enabled
-- Helmet for security headers
+2. Apply migrations to Supabase Cloud:
+
+```bash
+npx prisma migrate deploy
+```
+
+3. If your Supabase Cloud DB already has data, introspect the schema:
+
+```bash
+npx prisma db pull
+```
+
+```
+
+---
+
+Let me know if you'd like to include Docker setup steps or scripts too!
+```

@@ -13,8 +13,8 @@ export default class CommonVariables {
     static readonly JWT_SECRET_TIMEOUT: string = config.JWT_SECRET_TIMEOUT;
     static readonly ENCRYPTION_KEY: string = config.ENCRYPTION_KEY;
     static readonly REDIS_URI: string = config.REDIS_URI;
-    static readonly SUPABASE_URL: string = config.SUPABASE_URL;
-    static readonly SUPABASE_ANON_KEY: string = config.SUPABASE_ANON_KEY;
+    static readonly SUPABASE_KEY: string = config.SUPABASE_KEY;
+    static readonly SUPABASE_ANON_KEY: string = config.SUPABASE_KEY;
     static readonly SMTP_HOST: string = process.env.SMTP_HOST ||config.SMTP_HOST 
     static readonly SMTP_PORT: string = process.env.SMTP_PORT||config.SMTP_PORT
     static readonly SMTP_SECURE: string = process.env.SMTP_SECURE|| config.SMTP_SECURE;
@@ -29,7 +29,7 @@ export default class CommonVariables {
                 "JWT_SECRET_TIMEOUT", 
                 "CRYPTO_ENCRYPTION_KEY", 
                 "REDIS_URI",
-                "SUPABASE_URL",
+                "SUPABASE_KEY",
                 "SUPABASE_ANON_KEY"
             ];
 

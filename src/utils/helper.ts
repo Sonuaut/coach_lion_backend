@@ -2,6 +2,7 @@ import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import crypto from "crypto";
 import CommonVariables from "../config/index";
+import { decode } from "punycode";
 
 export const HashedPassword = async (password: string): Promise<string> => {
     return bcrypt.hash(password, 10);
@@ -88,10 +89,12 @@ export const generateRefreshToken = (payload: { userId: string; email: string })
 // ✅ Verify Access Token
 export const verifyAccessToken = (token: string): { userId: string; email: string; name: string } | null => {
     try {
+       
         const decoded = jwt.verify(token, JWT_SECRET, {
             issuer: 'auth-service',
             audience: 'user'
         }) as { userId: string; email: string; name: string };
+        
         return decoded;
     } catch (error) {
         console.error("Access token verification failed:", error);

@@ -68,7 +68,7 @@ export default class AuthService {
         // Verify password
         const isPasswordValid = await ComparePassword(password, user!.password);
         throwBusinessError(!isPasswordValid, "Invalid email or password");
-
+// console.log("user :",user)
         // Generate tokens
         const accessToken = generateAccessToken({
             userId: user!.id,

@@ -7,7 +7,7 @@ interface EnvironmentConfig {
     ENCRYPTION_KEY: string;
     REDIS_URI: string;
     SUPABASE_URL: string;
-    SUPABASE_ANON_KEY: string;
+    SUPABASE_KEY: string;
     DB_USER: string;
     DB_HOST: string;
     DB_NAME: string;
@@ -30,7 +30,7 @@ const localConfig: EnvironmentConfig = {
     ENCRYPTION_KEY: "super-secret-jwt-token-with-at-least-32-characters-long",
     REDIS_URI: "redis://localhost:6379",
     SUPABASE_URL: "http://127.0.0.1:54321",
-    SUPABASE_ANON_KEY: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6ImFub24iLCJleHAiOjE5ODM4MTI5OTZ9.CRXP1A7WOeoJeXxjNni43kdQwgnWNReilDMblYTn_I0",
+    SUPABASE_KEY: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6ImFub24iLCJleHAiOjE5ODM4MTI5OTZ9.CRXP1A7WOeoJeXxjNni43kdQwgnWNReilDMblYTn_I0",
     DB_USER: "postgres",
     DB_HOST: "127.0.0.1",
     DB_NAME: "postgres",
@@ -53,7 +53,7 @@ const productionConfig: EnvironmentConfig = {
     ENCRYPTION_KEY: process.env.CRYPTO_ENCRYPTION_KEY || "",
     REDIS_URI: process.env.REDIS_URI || "",
     SUPABASE_URL: process.env.SUPABASE_URL || "",
-    SUPABASE_ANON_KEY: process.env.SUPABASE_ANON_KEY || "",
+    SUPABASE_KEY: process.env.SUPABASE_KEY || "",
     DB_USER: process.env.DB_USER || "",
     DB_HOST: process.env.DB_HOST || "",
     DB_NAME: process.env.DB_NAME || "",

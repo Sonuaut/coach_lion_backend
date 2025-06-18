@@ -22,16 +22,15 @@ export const authenticate = async (req: Request, res: Response, next: NextFuncti
         if (!token) {
             const authHeader = req.headers.authorization;
             if (authHeader && authHeader.startsWith('Bearer ')) {
-                token = authHeader.substring(7);
+                const string =authHeader.split(" ");
+                token=string[1];
             }
         }
-
         throwBusinessError(!token, 'Access token is required');
-        // Verify the token
+        
         const decoded = verifyAccessToken(token);
         throwBusinessError(!decoded, 'Invalid or expired access token');
-        // Attach user info to request
-        req.body.loggedInUser = decoded;
+        req.user = decoded;
         next();
     } catch (error: any) {
         res.status(401).json({

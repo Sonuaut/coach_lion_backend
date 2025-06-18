@@ -3,6 +3,7 @@ import express, { Request, Response } from "express";
 import cookieParser from "cookie-parser";
 import swaggerUi from "swagger-ui-express";
 import v1AuthRoutes from "./routes/v1/auth/auth.routes";
+import v1OnboardingRoutes from "./routes/v1/onboarding/onboarding.routes"
 import CommonVariables from "./config/index";
 import { errorHandler } from "./middleware/error.middleware";
 import { AuthDatabase } from "./database/implementations/prisma/authdb";
@@ -47,6 +48,7 @@ app.get("/api/v1/health", async (req: Request, res: Response) => {
 
 // Routes
 app.use("/api/v1/auth", v1AuthRoutes);
+app.use("/api/v1/onboarding",v1OnboardingRoutes)
 
 // Error handling middleware
 app.use(errorHandler);

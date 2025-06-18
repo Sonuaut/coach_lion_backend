@@ -1,6 +1,3 @@
-// This is your Prisma schema file.
-// Learn more at: https://pris.ly/d/prisma-schema
-
 generator client {
   provider = "prisma-client-js"
   output   = "../src/generated/prisma"
@@ -8,19 +5,34 @@ generator client {
 
 datasource db {
   provider = "postgresql"
-  url      = env("DATABASE_URL")  // use this in your .env file
+  url      = env("DATABASE_URL")
 }
 
 model User {
-  id          String    @id @default(uuid())
+  id          String   @id @default(uuid())
   name        String
-  email       String    @unique
+  email       String   @unique
   password    String
-  otp         String?   // Optional OTP field, can be null after verification
-  is_verified Boolean   @default(false)
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
+  otp         String?
+  is_verified Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  onboarding  UserOnboarding?
 }
 
+model UserOnboarding {
+  id             String   @id @default(uuid())
+  userId         String   @unique
+  focusArea      String?
+  coachSelection String?
+  coachAvatar    String?
+  coachStyle     String?
+  ageRange       String?
+  gender         String?
+  planType       String?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
 
-
+  user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}

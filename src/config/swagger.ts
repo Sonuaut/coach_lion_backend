@@ -475,6 +475,7 @@ const options = {
                     tags: ['Password Management'],
                     summary: 'Forgot password (Step 1)',
                     description: 'Verify OTP and get tokens for password reset',
+                    security: [{ BearerAuth: [] }],
                     requestBody: {
                         required: true,
                         content: {

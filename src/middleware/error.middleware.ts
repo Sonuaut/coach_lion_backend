@@ -19,7 +19,7 @@ export const errorHandler = (err: any, req: Request, res: Response, next: NextFu
     }
 
     if (err instanceof DBError) {
-        return res.status(500).json({
+        return res.status(400).json({
             status: false,
             error: err.errorResponse.message,
             code: err.errorResponse.code,

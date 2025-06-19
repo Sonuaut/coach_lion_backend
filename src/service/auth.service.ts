@@ -15,7 +15,7 @@ export default class AuthService {
         
         // Check if user exists
         const { data: existingUser, error } = await this._authdbService.getUserByEmail(email as string);
-        throwBusinessError(!!existingUser, 'Email already registered. Please use a different email or try signing in.');
+        throwBusinessError(!!existingUser, 'Email already registered. Please use a different email or try signing up.');
         const otp = generateOTP();
         // Create user profile
         const data = await this._authdbService.signup({
@@ -62,6 +62,10 @@ export default class AuthService {
     }
 
     async signin(email: string, password: string) {
+        
+        const { data: existingUser, error } = await this._authdbService.getUserByEmail(email as string);
+        throwBusinessError(!existingUser, 'Email does not exists . Please use a valid email .');
+
         // Get user with hashed password
         const user = await this._authdbService.signin(email, password);
         throwBusinessError(!user, "Invalid email or password");

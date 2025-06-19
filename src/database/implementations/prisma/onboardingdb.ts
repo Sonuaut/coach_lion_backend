@@ -1,6 +1,8 @@
 import { PrismaClient } from '../../../generated/prisma';
 import { throwDBError, DBErrorResponse } from '../../../utils/error.utils';
-import { FocusArea, CoachType, CoachStyle, AgeRange, Gender, PlanType } from '../../../types/onboarding';
+import { FocusArea, CoachType, CoachStyle, AgeRange, Gender, PlanType, OnboardingField, OnboardingFieldKey } from '../../../types/onboarding';
+
+
 
 export class OnboardingDatabase {
     private prisma: PrismaClient;
@@ -27,9 +29,28 @@ export class OnboardingDatabase {
                 create: data,
             });
 
-            // Count steps
-            const stepCount = await this.prisma.userOnboardingStep.count({ where: { userId } });
-            const isCompleted = stepCount >= 7;
+            // Fetch all steps for the user
+            const allSteps = await this.prisma.userOnboardingStep.findMany({ where: { userId } });
+            // Aggregate all values
+            const onboardingFields: OnboardingFieldKey[] = [
+                OnboardingField.FOCUS_AREA,
+                OnboardingField.COACH_TYPE,
+                OnboardingField.COACH_LOOK,
+                OnboardingField.COACH_STYLE,
+                OnboardingField.AGE_RANGE,
+                OnboardingField.GENDER,
+                OnboardingField.PLAN_TYPE
+            ];
+            const allValues: Record<string, any> = {};
+            for (const step of allSteps) {
+                for (const field of onboardingFields) {
+                    if ((step as any)[field] !== undefined && (step as any)[field] !== null && (step as any)[field] !== '') {
+                        allValues[field] = (step as any)[field];
+                    }
+                }
+            }
+            // Check if all required fields are present and non-empty
+            const isCompleted = onboardingFields.every(field => allValues[field] !== undefined && allValues[field] !== null && allValues[field] !== '');
 
             // Upsert status
             await this.prisma.userOnboardingStatus.upsert({
@@ -56,13 +77,13 @@ export class OnboardingDatabase {
     async getOnboardingStepsByUserId(userId: string) {
         try {
             // Define expected fields for each step
-            const stepFields: Record<number, string[]> = {
-                1: ['focusArea'],
-                2: ['coachType'],
-                3:['coachLook'],
-                4:['coachStyle'],
-                5: ['gender','ageRange'],
-                6: ['planType'],
+            const stepFields: Record<number, OnboardingFieldKey[]> = {
+                1: [OnboardingField.FOCUS_AREA],
+                2: [OnboardingField.COACH_TYPE],
+                3: [OnboardingField.COACH_LOOK],
+                4: [OnboardingField.COACH_STYLE],
+                5: [OnboardingField.GENDER, OnboardingField.AGE_RANGE],
+                6: [OnboardingField.PLAN_TYPE],
             };
             // Aggregate all steps for the user into a single object
             const steps = await this.prisma.userOnboardingStep.findMany({
@@ -86,14 +107,14 @@ export class OnboardingDatabase {
                 Object.entries(step).forEach(([key, value]) => {
                     if (
                         [
-                            'focusArea',
-                            'coachType',
-                            'coachLook',
-                            'coachStyle',
-                            'ageRange',
-                            'gender',
-                            'planType',
-                        ].includes(key) && value !== null && value !== undefined
+                            OnboardingField.FOCUS_AREA,
+                            OnboardingField.COACH_TYPE,
+                            OnboardingField.COACH_LOOK,
+                            OnboardingField.COACH_STYLE,
+                            OnboardingField.AGE_RANGE,
+                            OnboardingField.GENDER,
+                            OnboardingField.PLAN_TYPE,
+                        ].includes(key as OnboardingFieldKey) && value !== null && value !== undefined
                     ) {
                         acc[key] = value;
                     }

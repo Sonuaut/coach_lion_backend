@@ -1,3 +1,17 @@
+
+
+export const OnboardingField = {
+  FOCUS_AREA: 'focusArea',
+  COACH_TYPE: 'coachType',
+  COACH_LOOK: 'coachLook',
+  COACH_STYLE: 'coachStyle',
+  AGE_RANGE: 'ageRange',
+  GENDER: 'gender',
+  PLAN_TYPE: 'planType'
+} as const;
+
+export type OnboardingFieldKey = typeof OnboardingField[keyof typeof OnboardingField];
+
 // Enums for onboarding values
 export enum FocusArea {
   MONEY = 'Money',

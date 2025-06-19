@@ -71,7 +71,7 @@ export const generateOTP = (): string => {
 // 🎫 Generate Access Token (short-lived)
 export const generateAccessToken = (payload: { userId: string; email: string; name: string }): string => {
     return jwt.sign(payload, JWT_SECRET, { 
-        expiresIn: '15m', // 15 minutes
+        expiresIn: '1d', // 1 day
         issuer: 'auth-service',
         audience: 'user'
     });
@@ -80,7 +80,7 @@ export const generateAccessToken = (payload: { userId: string; email: string; na
 // 🔄 Generate Refresh Token (long-lived)
 export const generateRefreshToken = (payload: { userId: string; email: string }): string => {
     return jwt.sign(payload, JWT_SECRET, { 
-        expiresIn: '7d', // 7 days
+        expiresIn: '15d', // 15 days
         issuer: 'auth-service',
         audience: 'refresh'
     });

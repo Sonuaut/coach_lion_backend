@@ -11,17 +11,29 @@ export async function submitOnboarding(req: Request, res: Response) {
             message: "User not authenticated"
         });
     }
-
-    const { loggedInUser, ...onboardingData } = req.body;
-    const result = await _onboardingService.submitOnboarding(userId, onboardingData);
-    res.status(200).json({
-        success: true,
-        message: result.message,
-        data: {
-            onboarding: result.onboarding,
-            isNew: result.isNew
-        }
-    });
+    // Expecting { onBoardingStep, values } in body
+    const { onBoardingStep, values } = req.body;
+    if (!onBoardingStep || !values || typeof values !== 'object') {
+        return res.status(400).json({
+            success: false,
+            message: "Missing onBoardingStep or values in request body"
+        });
+    }
+    try {
+        const result = await _onboardingService.submitOnboardingStep(userId, onBoardingStep, values);
+        res.status(200).json({
+            success: true,
+            message: result.message,
+            data: {
+                isOnBoardingCompleted: result.isOnBoardingCompleted
+            }
+        });
+    } catch (error: any) {
+        res.status(500).json({
+            success: false,
+            message: error.message || 'Failed to submit onboarding step'
+        });
+    }
 }
 
 export async function getOnboarding(req: Request, res: Response) {
@@ -33,14 +45,18 @@ export async function getOnboarding(req: Request, res: Response) {
         });
     }
 
-    const onboarding = await _onboardingService.getOnboarding(userId);
-    
-    res.status(200).json({
-        success: true,
-        data: {
-            onboarding
-        }
-    });
+    try {
+        const onboarding = await _onboardingService.getOnboarding(userId);
+        res.status(200).json({
+            success: true,
+            data: onboarding
+        });
+    } catch (error: any) {
+        res.status(500).json({
+            success: false,
+            message: error.message || 'Failed to fetch onboarding data'
+        });
+    }
 }
 
 export async function checkOnboardingStatus(req: Request, res: Response) {
@@ -52,10 +68,16 @@ export async function checkOnboardingStatus(req: Request, res: Response) {
         });
     }
 
-    const status = await _onboardingService.checkOnboardingStatus(userId);
-    
-    res.status(200).json({
-        success: true,
-        data: status
-    });
+    try {
+        const status = await _onboardingService.checkOnboardingStatus(userId);
+        res.status(200).json({
+            success: true,
+            data: status
+        });
+    } catch (error: any) {
+        res.status(500).json({
+            success: false,
+            message: error.message || 'Failed to check onboarding status'
+        });
+    }
 } 

@@ -7,16 +7,13 @@ import { authenticate } from '../../../middleware/authorizer.middleware';
 
 const router = Router();
 
-// All onboarding routes require authentication
+// All onboarding routes
 router.use(authenticate);
 
 // Submit onboarding data
-router.post('/submit', validateRequest(onboardingSchema), tryCatchHandler(onboardingController.submitOnboarding));
+router.post('/submit',authenticate, validateRequest(onboardingSchema), tryCatchHandler(onboardingController.submitOnboarding));
 
-// Get user's onboarding data
-router.get('/', tryCatchHandler(onboardingController.getOnboarding));
-
-// Check if user has completed onboarding
-router.get('/status', tryCatchHandler(onboardingController.checkOnboardingStatus));
+// Get user's onboarding data (for authenticated user)
+router.get('/',authenticate, tryCatchHandler(onboardingController.getOnboarding));
 
 export default router; 

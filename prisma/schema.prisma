@@ -18,26 +18,41 @@ model User {
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
-  onboarding  UserOnboarding?
+  userOnboardingSteps UserOnboardingStep[]
+  userOnboardingStatus UserOnboardingStatus?
   userCheckins UserCheckin[]
   feedbacks   Feedback[]
   moods       Mood[]
+
+  @@index([email])
 }
 
-model UserOnboarding {
-  id             String   @id @default(uuid())
-  userId         String   @unique
-  focusArea      String?
-  coachSelection String?
-  coachAvatar    String?
-  coachStyle     String?
-  ageRange       String?
-  gender         String?
-  planType       String?
-  createdAt      DateTime @default(now())
-  updatedAt      DateTime @updatedAt
+model UserOnboardingStep {
+  id              String   @id @default(uuid())
+  userId          String
+  onBoardingStep  Int
 
-  user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  focusArea       String?
+  coachType       String?
+  coachLook       String?
+  coachStyle      String?
+  ageRange        String?
+  gender          String?
+  planType        String?
+
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, onBoardingStep])
+  @@index([userId])
+}
+
+model UserOnboardingStatus {
+  userId                String   @id
+  isOnBoardingCompleted Boolean  @default(false)
+
+  user                  User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
 }
 
 model UserCheckin {
@@ -49,6 +64,7 @@ model UserCheckin {
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([userId, date])
+  @@index([userId])
 }
 
 model Feedback {
@@ -58,6 +74,8 @@ model Feedback {
   date      String
   createdAt DateTime @default(now())
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
 }
 
 model Mood {
@@ -71,4 +89,5 @@ model Mood {
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([userId, date])
+  @@index([userId])
 }

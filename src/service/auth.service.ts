@@ -2,11 +2,13 @@ import { IUser } from "../types/user";
 import { AuthDatabase } from "../database/implementations/prisma/authdb";
 import { throwBusinessError } from "../utils/error.utils";
 import { sendOTPEmail } from "../utils/email.utils";
-import { generateOTP, ComparePassword, generateAccessToken, generateRefreshToken, verifyRefreshToken } from "../utils/helper";
+import { generateOTP, ComparePassword, generateAccessToken, generateRefreshToken, verifyRefreshToken, verifyAccessToken } from "../utils/helper";
+import OnboardingService from "./onboarding.service";
 
 
 export default class AuthService {
     private _authdbService = new AuthDatabase();
+    private _onboardingService = new OnboardingService();
 
     async signup(userData: Partial<IUser>) {
         const { name, password, email } = userData;
@@ -64,11 +66,15 @@ export default class AuthService {
         const user = await this._authdbService.signin(email, password);
         throwBusinessError(!user, "Invalid email or password");
         
-        
         // Verify password
         const isPasswordValid = await ComparePassword(password, user!.password);
         throwBusinessError(!isPasswordValid, "Invalid email or password");
-// console.log("user :",user)
+
+        // Get onboarding data
+        const onboardingData = await this._onboardingService.getOnboarding(user!.id);
+        const onboardingStatus = await this._onboardingService.checkOnboardingStatus(user!.id);
+        console.log("on boardData",onboardingData,onboardingStatus)
+
         // Generate tokens
         const accessToken = generateAccessToken({
             userId: user!.id,
@@ -85,6 +91,9 @@ export default class AuthService {
         const { password: _, ...userWithoutPassword } = user!;
         return {
             user: userWithoutPassword,
+            onboarding: {
+               ...onboardingData
+            },
             accessToken,
             refreshToken
         };
@@ -126,34 +135,7 @@ export default class AuthService {
         };
     }
 
-    // async forgotPassword(email: string) {
-    //     if (!email) {
-    //         throwBusinessError(true, "Email is required");
-    //     }
-    //     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-    //         throwBusinessError(true, "Invalid email format");
-    //     }
-
-    //     const otp = await this._authdbService.saveOTP(email);
-    //     await this._authdbService.sendPasswordResetEmail(email, otp);
-
-    //     return { message: "Password reset code sent to your email" };
-    // }
-
-    // async verifyResetOTP(email: string, otp: string) {
-    //     const isValid = await this._authdbService.verifyOTP(email, otp);
-    //     throwBusinessError(!isValid, "Invalid or expired OTP");
-    //     return { message: "OTP verified successfully" };
-    // }
-
-    // async resetPassword(email: string, otp: string, newPassword: string) {
-    //     const isValid = await this._authdbService.verifyOTP(email, otp);
-    //     throwBusinessError(!isValid, "Invalid or expired OTP");
-
-    //     const result = await this._authdbService.updatePassword(newPassword);
-    //     throwBusinessError(!result, "Failed to reset password");
-    //     return { message: "Password reset successfully" };
-    // }
+    
 
     async logout() {
         // In a more advanced implementation, you might want to:
@@ -205,9 +187,9 @@ export default class AuthService {
 
     async resetPassword(refreshToken: string, newPassword: string) {
         // Verify refresh token
-        const decoded = verifyRefreshToken(refreshToken);
+        const decoded = verifyAccessToken(refreshToken);
         if (!decoded) {
-            throwBusinessError(true, "Invalid refresh token");
+            throwBusinessError(true, "Invalid Access token");
         }
 
         // Get user to ensure they still exist

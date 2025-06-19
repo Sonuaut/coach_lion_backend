@@ -42,6 +42,7 @@ export async function signin(req: Request, res: Response) {
         message: "Login successful",
         data: {
             user: result.user,
+            onboarding: result.onboarding,
             accessToken: result.accessToken
         }
     });
@@ -118,7 +119,7 @@ export async function resetPassword(req: Request, res: Response) {
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
         return res.status(401).json({
             success: false,
-            message: "Refresh token is required in Authorization header"
+            message: "Access token is required in Authorization header"
         });
     }
     

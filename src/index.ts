@@ -11,6 +11,7 @@ import CommonVariables from "./config/index";
 import { errorHandler } from "./middleware/error.middleware";
 import { AuthDatabase } from "./database/implementations/prisma/authdb";
 import { specs } from "./config/swagger";
+import cors from "cors";
 
 CommonVariables.Initiate();
 const app = express();
@@ -22,10 +23,13 @@ const PORT = CommonVariables.PORT;
 // Middleware for parsing JSON requests
 app.use(express.json());
 
+// Enable CORS for all origins
+app.use(cors());
+
 // Middleware for parsing cookies
 app.use(cookieParser());
 
-// Swagger Documentation
+// Swagger Documentation 
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(specs, {
     customCss: '.swagger-ui .topbar { display: none }',
     customSiteTitle: 'Authentication API Documentation',
@@ -37,7 +41,7 @@ app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(specs, {
         showExtensions: true,
         showCommonExtensions: true
     }
-}));
+}))
 
 // Health check route
 app.get("/api/v1/health", async (req: Request, res: Response) => {

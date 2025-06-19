@@ -5,17 +5,16 @@ export enum FocusArea {
   MINDSET = 'Mindset'
 }
 
-export enum CoachSelection {
-  AUTO = 'auto',
+export enum CoachType {
+  AUTOMATIC = 'automatic',
   MANUAL = 'manual'
 }
 
 export enum CoachStyle {
   MOTIVATIONAL = 'Motivational',
-  CALM = 'Calm',
-  STRUCTURED = 'Structured',
-  CASUAL = 'Casual',
-  PROFESSIONAL = 'Professional'
+  CALM_AND_SUPPORTIVE = 'Calm and Supportive',
+  NOT_ACCOUNTABILITY = 'Not Accountability',
+  NOT_SURE = 'Not Sure'
 }
 
 export enum AgeRange {
@@ -43,8 +42,8 @@ export interface IUserOnboarding {
   id?: string;
   userId: string;
   focusArea: FocusArea;
-  coachSelection: CoachSelection;
-  coachAvatar: string;
+  coachType: CoachType;
+  coachLook: string;
   coachStyle: CoachStyle;
   ageRange: AgeRange;
   gender: Gender;
@@ -55,8 +54,8 @@ export interface IUserOnboarding {
 
 export interface OnboardingRequest {
   focusArea?: FocusArea;
-  coachSelection?: CoachSelection;
-  coachAvatar?: string;
+  coachType?: CoachType;
+  coachLook?: string;
   coachStyle?: CoachStyle;
   ageRange?: AgeRange;
   gender?: Gender;
@@ -65,7 +64,7 @@ export interface OnboardingRequest {
 
 // Helper functions to get enum values
 export const getFocusAreaValues = (): string[] => Object.values(FocusArea);
-export const getCoachSelectionValues = (): string[] => Object.values(CoachSelection);
+export const getCoachTypeValues = (): string[] => Object.values(CoachType);
 export const getCoachStyleValues = (): string[] => Object.values(CoachStyle);
 export const getAgeRangeValues = (): string[] => Object.values(AgeRange);
 export const getGenderValues = (): string[] => Object.values(Gender);

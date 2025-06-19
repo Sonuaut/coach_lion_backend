@@ -121,14 +121,13 @@ export const createOTPEmailTemplate = (otp: string, userName: string): string =>
                 <div class="otp-box">
                     <div style="font-size: 14px; margin-bottom: 10px;">Your Verification Code</div>
                     <div class="otp-code">${otp}</div>
-                    <div style="font-size: 12px; opacity: 0.8;">Valid for 10 minutes</div>
+                    
                 </div>
                 
                 <div class="warning">
                     <strong>⚠️ Security Notice:</strong><br>
                     • Never share this code with anyone<br>
                     • Our team will never ask for this code<br>
-                    • This code will expire in 10 minutes
                 </div>
                 
                 <p class="message">
@@ -166,7 +165,7 @@ export const sendEmail = async (to: string, subject: string, text: string, html?
 export const sendOTPEmail = async (to: string, otp: string, userName: string): Promise<void> => {
     const subject = "🔐 Your Email Verification Code - Coach Lion";
     const html = createOTPEmailTemplate(otp, userName);
-    const text = `Your verification code is: ${otp}. Valid for 10 minutes.`;
+    const text = `Your verification code is: ${otp}.`;
     
     await sendEmail(to, subject, text, html);
 };

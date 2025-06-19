@@ -52,17 +52,43 @@ const options = {
                             description: 'User registered successfully',
                             content: {
                                 'application/json': {
-                                    schema: { $ref: '#/components/schemas/SuccessResponse' },
+                                    schema: {
+                                        type: 'object',
+                                        properties: {
+                                            success: { type: 'boolean', example: true },
+                                            data: {
+                                                type: 'object',
+                                                properties: {
+                                                    user: {
+                                                        type: 'object',
+                                                        properties: {
+                                                            id: { type: 'string', format: 'uuid' },
+                                                            name: { type: 'string' },
+                                                            email: { type: 'string', format: 'email' },
+                                                            otp: { type: 'string' },
+                                                            is_verified: { type: 'boolean' },
+                                                            createdAt: { type: 'string', format: 'date-time' },
+                                                            updatedAt: { type: 'string', format: 'date-time' }
+                                                        }
+                                                    },
+                                                    message: { type: 'string', example: 'Please check your email for verification code' }
+                                                }
+                                            }
+                                        }
+                                    },
                                     example: {
                                         success: true,
-                                        message: 'User registered successfully',
                                         data: {
                                             user: {
-                                                id: 'uuid',
-                                                name: 'John Doe',
-                                                email: 'john@example.com',
-                                                is_verified: false
-                                            }
+                                                id: 'b3246d68-0f68-4add-8342-99ef05ff8174',
+                                                name: 'Test User',
+                                                email: 'viranshk7@gmail.com',
+                                                otp: '686153',
+                                                is_verified: false,
+                                                createdAt: '2025-06-19T09:59:37.315Z',
+                                                updatedAt: '2025-06-19T09:59:37.315Z'
+                                            },
+                                            message: 'Please check your email for verification code'
                                         }
                                     }
                                 }
@@ -727,44 +753,24 @@ const options = {
                             description: 'Onboarding step submitted successfully',
                             content: {
                                 'application/json': {
-                                    schema: { $ref: '#/components/schemas/SuccessResponse' },
-                                    examples: {
-                                        incomplete: {
-                                            value: {
-                                                success: true,
-                                                message: 'Onboarding step submitted successfully',
-                                                data: {
-                                                    message: 'Onboarding step submitted successfully',
-                                                    isOnBoardingCompleted: false
+                                    schema: {
+                                        type: 'object',
+                                        properties: {
+                                            success: { type: 'boolean', example: true },
+                                            message: { type: 'string', example: 'Onboarding step submitted successfully' },
+                                            data: {
+                                                type: 'object',
+                                                properties: {
+                                                    isOnBoardingCompleted: { type: 'boolean', example: false }
                                                 }
-                                            },
-                                            summary: "Regular step submission"
-                                        },
-                                        automaticCoach: {
-                                            value: {
-                                                success: true,
-                                                message: 'Onboarding steps submitted successfully',
-                                                data: {
-                                                    message: 'Onboarding steps submitted successfully',
-                                                    isOnBoardingCompleted: false,
-                                                    autoSelectedSteps: {
-                                                        coachLook: "male",
-                                                        coachStyle: "Motivational"
-                                                    }
-                                                }
-                                            },
-                                            summary: "Automatic coach selection (includes auto-filled steps)"
-                                        },
-                                        complete: {
-                                            value: {
-                                                success: true,
-                                                message: 'Onboarding step submitted successfully',
-                                                data: {
-                                                    message: 'Onboarding step submitted successfully',
-                                                    isOnBoardingCompleted: true
-                                                }
-                                            },
-                                            summary: "Final step submission"
+                                            }
+                                        }
+                                    },
+                                    example: {
+                                        success: true,
+                                        message: 'Onboarding step submitted successfully',
+                                        data: {
+                                            isOnBoardingCompleted: false
                                         }
                                     }
                                 }

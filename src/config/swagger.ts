@@ -1034,7 +1034,29 @@ const options = {
                         required: true,
                         content: {
                             'application/json': {
-                                schema: { $ref: '#/components/schemas/MoodRequest' }
+                                schema: { $ref: '#/components/schemas/MoodRequest' },
+                                examples: {
+                                    veryHappy: {
+                                        value: { mood: 'veryhappy' },
+                                        summary: 'Very Happy mood'
+                                    },
+                                    happy: {
+                                        value: { mood: 'happy' },
+                                        summary: 'Happy mood'
+                                    },
+                                    sleeping: {
+                                        value: { mood: 'sleeping' },
+                                        summary: 'Sleeping mood'
+                                    },
+                                    sad: {
+                                        value: { mood: 'sad' },
+                                        summary: 'Sad mood'
+                                    },
+                                    verySad: {
+                                        value: { mood: 'verysad' },
+                                        summary: 'Very Sad mood'
+                                    }
+                                }
                             }
                         }
                     },
@@ -1395,17 +1417,12 @@ const options = {
                     properties: {
                         mood: {
                             type: 'string',
-                            enum: ['Happy', 'Stressed', 'Motivated', 'Sad', 'Anxious', 'Calm', 'Excited'],
-                            description: 'Mood type'
+                            enum: ['Very Happy', 'Happy', 'Sleeping', 'Sad', 'Very Sad'],
+                            description: 'Mood type. There are 5 allowed values: Very Happy, Happy, Sleeping, Sad, Very Sad.'
                         },
                         note: {
                             type: 'string',
                             description: 'Optional note about the mood'
-                        },
-                        date: {
-                            type: 'string',
-                            format: 'date',
-                            description: 'Date for the mood entry (optional)'
                         }
                     }
                 }

@@ -1,12 +1,9 @@
 export enum MoodType {
-  HAPPY = 'Happy',
-  STRESSED = 'Stressed',
-  MOTIVATED = 'Motivated',
-  SAD = 'Sad',
-  ANXIOUS = 'Anxious',
-  CALM = 'Calm',
-  EXCITED = 'Excited',
-  // Add more as needed
+  HAPPY = 'happy',
+  VERYHAPPY = 'veryhappy',
+  VERYSAD = 'verysad',
+  SAD = 'sad',
+  SLEEPING='sleeping'
 }
 
 export interface IMood {

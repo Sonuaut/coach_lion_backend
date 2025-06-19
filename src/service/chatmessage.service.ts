@@ -9,33 +9,48 @@ const chatDB = new ChatMessageDatabase();
 const userTaskDB = new UserTaskDatabase();
 
 export class ChatMessageService {
-  async handleUserMessage(userId: string, userMessage: string,onboardingPrefs: OnboardingPreferences, date: string) {
-    // 1. Fetch today's task
-    const [taskRow, rawHistory] = await Promise.all([
-      userTaskDB.getUserTaskForDate(userId, date),
-      chatDB.getMessagesForDate(userId, date),
-    ]);
 
-    if (!taskRow) throw new Error('No task found for today. Please generate your daily task first.');
-    const messages = generateChatPrompt(onboardingPrefs, taskRow.task, rawHistory ?? [], userMessage);
-    // 4. Get GPT response
-    const completion = await openai.chat.completions.create({
-      model: 'gpt-4',
-      messages,
-      max_tokens: 300,
-      temperature: 0.8,
-    });
-    const coachReply = completion.choices[0].message.content?.trim() || '';
-    if (!coachReply) throw new Error('Failed to get coach reply');
+    async handleUserMessage(
+      userId: string,
+      userMessage: string,
+      onboardingPrefs: OnboardingPreferences,
+      date: string
+    ) {
+      const [taskRow, rawHistory] = await Promise.all([
+        userTaskDB.getUserTaskForDate(userId, date),
+        chatDB.getMessagesForDate(userId, date),
+      ]);
   
-    await chatDB.createMessages([
-      { userId, date, role: 'user', message: userMessage },
-      { userId, date, role: 'assistant', message: coachReply },
-    ]);
+      if (!taskRow) throw new Error('No task found for today. Please generate your daily task first.');
   
-    return coachReply;
-  }
-
+      const messages = generateChatPrompt(onboardingPrefs, taskRow.task, rawHistory ?? [], userMessage);
+  
+      const completion = await openai.chat.completions.create({
+        model: 'gpt-4',
+        messages,
+        max_tokens: 300,
+        temperature: 0.8,
+      });
+  
+      let coachReply = completion.choices[0].message.content?.trim() || '';
+      if (!coachReply) throw new Error('Failed to get coach reply');
+  
+      await chatDB.createMessages([
+        { userId, date, role: 'user', message: userMessage },
+        { userId, date, role: 'assistant', message: coachReply },
+      ]);
+  
+      const parsed = JSON.parse(coachReply);
+      if (parsed && parsed.allTasksCompleted && parsed.feedback) {
+        await userTaskDB.updateUserTaskFeedback(userId, date, parsed.feedback);
+      }
+  
+      return parsed?.reply;
+    }
+  
+  
+ 
+  
   async getTodaysChatHistory(userId: string, date: string) {
     return await chatDB.getMessagesForDate(userId, date);
   }

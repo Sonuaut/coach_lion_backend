@@ -1,5 +1,6 @@
 import prisma from '../../../config/prisma';
 import { throwDBError, DBErrorResponse } from '../../../utils/error.utils';
+import moment from 'moment';
 
 export class ChatMessageDatabase {
 
@@ -47,9 +48,10 @@ export class ChatMessageDatabase {
     }
   }
 
+ 
   async getMessagesForDate(userId: string, date: string) {
     try {
-      const messages= await prisma.chatMessage.findMany({
+      const messages = await prisma.chatMessage.findMany({
         where: {
           userId,
           date,
@@ -58,10 +60,16 @@ export class ChatMessageDatabase {
         orderBy: { createdAt: 'asc' },
         select: {
           role: true,
-          message: true
+          message: true,
+          createdAt: true
         }
       });
-      return messages.map((m:any) => ({ role: m.role as 'user' | 'assistant', message: m.message }));
+  
+      return messages.map((m: any) => ({
+        role: m.role as 'user' | 'assistant',
+        message: m.message,
+        time: m.createdAt 
+      }));
     } catch (error: any) {
       const dbError: DBErrorResponse = {
         code: error.code || 'UNKNOWN_ERROR',
@@ -72,4 +80,5 @@ export class ChatMessageDatabase {
       throwDBError(dbError);
     }
   }
+  
 }

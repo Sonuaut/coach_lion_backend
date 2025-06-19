@@ -89,6 +89,7 @@ model UserTask {
   date      String   // Store date as YYYY-MM-DD, no time
   greeting  String   // Short greeting message like "Good morning, Ayush!"
   task      String   @db.Text  // Longer paragraph text for tasks
+  feedback  String?  // Feedback from GPT after task completion
   createdAt DateTime @default(now())
 
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)

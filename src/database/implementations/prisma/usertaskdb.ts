@@ -36,4 +36,21 @@ export class UserTaskDatabase {
       throwDBError(dbError);
     }
   }
+
+  async updateUserTaskFeedback(userId: string, date: string, feedback: string) {
+    try {
+      return await prisma.userTask.update({
+        where: { userId_date: { userId, date } },
+        data: { feedback },
+      });
+    } catch (error: any) {
+      const dbError: DBErrorResponse = {
+        code: error.code || 'UNKNOWN_ERROR',
+        message: error.message || 'Database operation failed',
+        details: error.details || 'Unknown database error',
+        hint: error.hint || null
+      };
+      throwDBError(dbError);
+    }
+  }
 } 

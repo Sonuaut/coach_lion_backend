@@ -1,16 +1,11 @@
-import { PrismaClient } from '../../../generated/prisma';
+import prisma from '../../../config/prisma';
 import { throwDBError, DBErrorResponse } from '../../../utils/error.utils';
 import { FocusArea, CoachType, CoachStyle, AgeRange, Gender, PlanType, OnboardingField, OnboardingFieldKey } from '../../../types/onboarding';
 
 
 
 export class OnboardingDatabase {
-    private prisma: PrismaClient;
-
-    constructor() {
-        this.prisma = new PrismaClient();
-    }
-
+ 
     /**
      * Upsert a single onboarding step for a user.
      * @param userId
@@ -23,14 +18,14 @@ export class OnboardingDatabase {
             const data: any = { userId, onBoardingStep, ...values };
 
             // Upsert the step
-            await this.prisma.userOnboardingStep.upsert({
+            await prisma.userOnboardingStep.upsert({
                 where: { userId_onBoardingStep: { userId, onBoardingStep } },
                 update: data,
                 create: data,
             });
 
             // Fetch all steps for the user
-            const allSteps = await this.prisma.userOnboardingStep.findMany({ where: { userId } });
+            const allSteps = await prisma.userOnboardingStep.findMany({ where: { userId } });
             // Aggregate all values
             const onboardingFields: OnboardingFieldKey[] = [
                 OnboardingField.FOCUS_AREA,
@@ -53,7 +48,7 @@ export class OnboardingDatabase {
             const isCompleted = onboardingFields.every(field => allValues[field] !== undefined && allValues[field] !== null && allValues[field] !== '');
 
             // Upsert status
-            await this.prisma.userOnboardingStatus.upsert({
+            await prisma.userOnboardingStatus.upsert({
                 where: { userId },
                 update: { isOnBoardingCompleted: isCompleted },
                 create: { userId, isOnBoardingCompleted: isCompleted },
@@ -86,7 +81,7 @@ export class OnboardingDatabase {
                 6: [OnboardingField.PLAN_TYPE],
             };
             // Aggregate all steps for the user into a single object
-            const steps = await this.prisma.userOnboardingStep.findMany({
+            const steps = await prisma.userOnboardingStep.findMany({
                 where: { userId },
                 orderBy: { onBoardingStep: 'asc' },
             });
@@ -122,7 +117,7 @@ export class OnboardingDatabase {
                 return acc;
             }, {} as Record<string, any>);
             // Fetch onboarding completion status
-            const status = await this.prisma.userOnboardingStatus.findUnique({ where: { userId } });
+            const status = await prisma.userOnboardingStatus.findUnique({ where: { userId } });
             const isOnBoardingCompleted = status?.isOnBoardingCompleted ?? false;
 
             // Determine nextOnBoardingStep
@@ -163,7 +158,7 @@ export class OnboardingDatabase {
      */
     async getOnboardingStatus(userId: string) {
         try {
-            const status = await this.prisma.userOnboardingStatus.findUnique({ where: { userId } });
+            const status = await prisma.userOnboardingStatus.findUnique({ where: { userId } });
             return { data: status, error: null };
         } catch (error: any) {
             const dbError: DBErrorResponse = {

@@ -21,6 +21,7 @@ export default class CommonVariables {
     static readonly SMTP_USER: string = process.env.SMTP_USER|| config.SMTP_USER;
     static readonly SMTP_PASSWORD: string =process.env.SMTP_PASSWORD|| config.SMTP_PASSWORD;
     static readonly SMTP_FROM: string =process.env.SMTP_FROM || config.SMTP_FROM;
+    static readonly OPENAI_API_KEY:string=process.env.OPENAI_API_KEY||config.OPENAI_API_KEY
    
     static Initiate() {
         if (this.NODE_ENV === "production") {

@@ -1,19 +1,15 @@
-import { PrismaClient } from '../../../generated/prisma';
+
+import prisma from '../../../config/prisma';
 import { throwDBError, DBErrorResponse, throwBusinessError } from '../../../utils/error.utils';
-import bcrypt from 'bcrypt';
 import { HashedPassword } from '../../../utils/helper';
 
 export class AuthDatabase {
-    private prisma: PrismaClient;
-
-    constructor() {
-        this.prisma = new PrismaClient();
-    }
+   
 
     // Health check
     async checkConnection(): Promise<boolean> {
         try {
-            await this.prisma.$connect();
+            await prisma.$connect();
             console.log("✅ Prisma connection is successful!");
             return true;
         } catch (error) {
@@ -24,7 +20,7 @@ export class AuthDatabase {
 
     async getUserByEmail(email: string) {
         try {
-            const user = await this.prisma.user.findUnique({
+            const user = await prisma.user.findUnique({
                 where: { email }
             });
             return { data: user, error: null };
@@ -36,7 +32,7 @@ export class AuthDatabase {
 
     async signup(profileData: { name: string; email: string; password: string ,otp:string}) {
             const hashedPassword = await HashedPassword(profileData.password)
-            const user = await this.prisma.user.create({
+            const user = await prisma.user.create({
                 data: {
                     name: profileData.name,
                     email: profileData.email,
@@ -52,7 +48,7 @@ export class AuthDatabase {
 
     async verifyOTP(email: string, otp: string) {
         try {
-            const user = await this.prisma.user.findUnique({
+            const user = await prisma.user.findUnique({
                 where: { email }
             });
 
@@ -78,7 +74,7 @@ export class AuthDatabase {
 
     async getUserProfile(userId: string) {
         try {
-            const user = await this.prisma.user.findUnique({
+            const user = await prisma.user.findUnique({
                 where: { id: userId },
                 select: {
                     id: true,
@@ -102,7 +98,7 @@ export class AuthDatabase {
 
     async updateUserFields(email: string, updateData: { otp?: string | null; is_verified?: boolean }) {
         try {
-            const updatedUser = await this.prisma.user.update({
+            const updatedUser = await prisma.user.update({
                 where: { email },
                 data: updateData
             });
@@ -125,7 +121,7 @@ export class AuthDatabase {
         try {
             const hashedPassword = await HashedPassword(newPassword);
             
-            const updatedUser = await this.prisma.user.update({
+            const updatedUser = await prisma.user.update({
                 where: { email },
                 data: { password: hashedPassword }
             });
@@ -146,7 +142,7 @@ export class AuthDatabase {
 
     async signin(email: string, password: string) {
         try {
-            const user = await this.prisma.user.findUnique({
+            const user = await prisma.user.findUnique({
                 where: { email }
             });
             throwBusinessError(!user,"Email is Invalid");
@@ -187,7 +183,7 @@ export class AuthDatabase {
     //         const expiresAt = new Date();
     //         expiresAt.setMinutes(expiresAt.getMinutes() + 10); // OTP expires in 10 minutes
 
-    //         await this.prisma.oTP.create({
+    //         await prisma.oTP.create({
     //             data: {
     //                 email,
     //                 otp,
@@ -210,7 +206,7 @@ export class AuthDatabase {
 
     // async verifyOTP(email: string, otp: string): Promise<boolean> {
     //     try {
-    //         const otpRecord = await this.prisma.oTP.findFirst({
+    //         const otpRecord = await prisma.oTP.findFirst({
     //             where: {
     //                 email,
     //                 otp,
@@ -229,7 +225,7 @@ export class AuthDatabase {
     //         }
 
     //         // Mark OTP as used
-    //         await this.prisma.oTP.update({
+    //         await prisma.oTP.update({
     //             where: { id: otpRecord.id },
     //             data: { isUsed: true }
     //         });
@@ -248,7 +244,7 @@ export class AuthDatabase {
 
     // async markUserAsVerified(email: string) {
     //     try {
-    //         await this.prisma.user.update({
+    //         await prisma.user.update({
     //             where: { email },
     //             data: { 
     //                 // You might want to add an isVerified field to your User model
@@ -276,7 +272,7 @@ export class AuthDatabase {
     //     try {
     //         const hashedPassword = await bcrypt.hash(newPassword, 10);
             
-    //         await this.prisma.user.update({
+    //         await prisma.user.update({
     //             where: { id: userId },
     //             data: { password: hashedPassword }
     //         });
@@ -294,6 +290,6 @@ export class AuthDatabase {
     // }
 
     // async disconnect() {
-    //     await this.prisma.$disconnect();
+    //     await prisma.$disconnect();
     // }
 } 

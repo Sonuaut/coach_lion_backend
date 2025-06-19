@@ -1,17 +1,12 @@
-import { PrismaClient } from '../../../generated/prisma';
+import prisma  from '../../../config/prisma';
 import { throwDBError, DBErrorResponse } from '../../../utils/error.utils';
-import { IUserCheckin } from '../../../types/checkins';
 
 export class CheckinDatabase {
-  private prisma: PrismaClient;
 
-  constructor() {
-    this.prisma = new PrismaClient();
-  }
 
   async createCheckin(userId: string, date: string) {
     try {
-      const checkin = await this.prisma.userCheckin.create({
+      const checkin = await prisma.userCheckin.create({
         data: { userId, date },
       });
       return { data: checkin, error: null };
@@ -28,7 +23,7 @@ export class CheckinDatabase {
 
   async getAllCheckins(userId: string) {
     try {
-      const checkins = await this.prisma.userCheckin.findMany({
+      const checkins = await prisma.userCheckin.findMany({
         where: { userId },
         orderBy: { date: 'desc' },
       });
@@ -46,7 +41,7 @@ export class CheckinDatabase {
 
   async getTodayCheckin(userId: string, today: string) {
     try {
-      const checkin = await this.prisma.userCheckin.findFirst({
+      const checkin = await prisma.userCheckin.findFirst({
         where: {
           userId,
           date: today,

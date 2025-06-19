@@ -2,7 +2,7 @@ import { Request, Response, NextFunction } from "express";
 import { ValidationError, BusinessError, DBError } from "../utils/error.utils";
 
 export const errorHandler = (err: any, req: Request, res: Response, next: NextFunction) => {
-    console.log("erro :",err)
+    // console.log("erro :",err)
     if (err instanceof ValidationError) {
         return res.status(400).json({
             status: false,

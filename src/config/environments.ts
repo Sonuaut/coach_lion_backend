@@ -19,6 +19,7 @@ interface EnvironmentConfig {
     SMTP_USER: string;
     SMTP_PASSWORD: string;
     SMTP_FROM: string;
+    OPENAI_API_KEY:string
 }
 
 const localConfig: EnvironmentConfig = {
@@ -41,7 +42,8 @@ const localConfig: EnvironmentConfig = {
     SMTP_SECURE: process.env.SMTP_SECURE || "true",
     SMTP_USER: process.env.SMTP_USER || "",
     SMTP_PASSWORD: process.env.SMTP_PASSWORD || "",
-    SMTP_FROM: process.env.SMTP_FROM || ""
+    SMTP_FROM: process.env.SMTP_FROM || "",
+    OPENAI_API_KEY:process.env.OPENAI_API_KEY||""
 };
 
 const productionConfig: EnvironmentConfig = {
@@ -64,7 +66,8 @@ const productionConfig: EnvironmentConfig = {
     SMTP_SECURE: process.env.SMTP_SECURE || "true",
     SMTP_USER: process.env.SMTP_USER || "",
     SMTP_PASSWORD: process.env.SMTP_PASSWORD || "",
-    SMTP_FROM: process.env.SMTP_FROM || ""
+    SMTP_FROM: process.env.SMTP_FROM || "",
+    OPENAI_API_KEY:process.env.OPENAI_API_KEY||""
 };
 
 export const getConfig = (): EnvironmentConfig => {

@@ -151,3 +151,14 @@ export function getTodayDateString(date?: Date): string {
     return d.toISOString().slice(0, 10); // 'YYYY-MM-DD'
   }
   
+
+  import moment from 'moment';
+
+export function getTimeOfDay(): "morning" | "afternoon" | "evening" | "night" {
+  const hour = moment().hour(); // gets the current hour in 24-hour format
+
+  if (hour >= 5 && hour < 12) return "morning";
+  if (hour >= 12 && hour < 17) return "afternoon";
+  if (hour >= 17 && hour < 21) return "evening";
+  return "night"; // 9 PM – 4:59 AM
+}

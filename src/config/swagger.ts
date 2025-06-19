@@ -1154,6 +1154,252 @@ const options = {
                         }
                     }
                 }
+            },
+            '/api/v1/task/generate': {
+                post: {
+                    tags: ['Task'],
+                    summary: 'Generate today\'s personalized task',
+                    description: 'Generate and store a personalized daily task for the authenticated user based on onboarding preferences. Only one task can be generated per day.',
+                    security: [{ BearerAuth: [] }],
+                    responses: {
+                        '200': {
+                            description: 'Task generated successfully',
+                            content: {
+                                'application/json': {
+                                    schema: {
+                                        type: 'object',
+                                        properties: {
+                                            success: { type: 'boolean', example: true },
+                                            data: { $ref: '#/components/schemas/UserTask' }
+                                        }
+                                    },
+                                    example: {
+                                        success: true,
+                                        data: {
+                                            id: '123e4567-e89b-12d3-a456-426614174000',
+                                            userId: 'user-uuid',
+                                            date: '2025-06-20',
+                                            greeting: 'Good morning, Aman!',
+                                            task: 'Here are your 3 tasks for today: Review your top 3 expenses, skip one unnecessary spend, and track your mood when shopping. Let\'s make today count!',
+                                            createdAt: '2025-06-20T08:00:00.000Z'
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        '400': {
+                            description: 'Task already exists or onboarding incomplete',
+                            content: {
+                                'application/json': {
+                                    schema: { $ref: '#/components/schemas/ErrorResponse' },
+                                    examples: {
+                                        alreadyExists: {
+                                            value: {
+                                                success: false,
+                                                message: 'A task for today already exists. You cannot create another task for today.',
+                                                error: 'BAD_REQUEST'
+                                            },
+                                            summary: 'Task already exists for today'
+                                        },
+                                        onboardingIncomplete: {
+                                            value: {
+                                                success: false,
+                                                message: 'Onboarding data incomplete',
+                                                error: 'BAD_REQUEST'
+                                            },
+                                            summary: 'Onboarding incomplete'
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        '401': {
+                            description: 'User not authenticated',
+                            content: {
+                                'application/json': {
+                                    schema: { $ref: '#/components/schemas/ErrorResponse' },
+                                    example: {
+                                        success: false,
+                                        message: 'User not authenticated',
+                                        error: 'UNAUTHORIZED'
+                                    }
+                                }
+                            }
+                        },
+                        '500': {
+                            description: 'Server error',
+                            content: {
+                                'application/json': {
+                                    schema: { $ref: '#/components/schemas/ErrorResponse' },
+                                    example: {
+                                        success: false,
+                                        message: 'Failed to generate task',
+                                        error: 'INTERNAL_SERVER_ERROR'
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            '/api/v1/task/today': {
+                get: {
+                    tags: ['Task'],
+                    summary: 'Get today\'s task',
+                    description: 'Retrieve the personalized daily task for the authenticated user for today.',
+                    security: [{ BearerAuth: [] }],
+                    responses: {
+                        '200': {
+                            description: 'Task retrieved successfully',
+                            content: {
+                                'application/json': {
+                                    schema: {
+                                        type: 'object',
+                                        properties: {
+                                            success: { type: 'boolean', example: true },
+                                            data: { $ref: '#/components/schemas/UserTask' }
+                                        }
+                                    },
+                                    example: {
+                                        success: true,
+                                        data: {
+                                            id: '123e4567-e89b-12d3-a456-426614174000',
+                                            userId: 'user-uuid',
+                                            date: '2025-06-20',
+                                            greeting: 'Good morning, Aman!',
+                                            task: 'Here are your 3 tasks for today: Review your top 3 expenses, skip one unnecessary spend, and track your mood when shopping. Let\'s make today count!',
+                                            createdAt: '2025-06-20T08:00:00.000Z'
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        '404': {
+                            description: 'No task found for today',
+                            content: {
+                                'application/json': {
+                                    schema: { $ref: '#/components/schemas/ErrorResponse' },
+                                    example: {
+                                        success: false,
+                                        message: 'No task found for today',
+                                        error: 'NOT_FOUND'
+                                    }
+                                }
+                            }
+                        },
+                        '401': {
+                            description: 'User not authenticated',
+                            content: {
+                                'application/json': {
+                                    schema: { $ref: '#/components/schemas/ErrorResponse' },
+                                    example: {
+                                        success: false,
+                                        message: 'User not authenticated',
+                                        error: 'UNAUTHORIZED'
+                                    }
+                                }
+                            }
+                        },
+                        '500': {
+                            description: 'Server error',
+                            content: {
+                                'application/json': {
+                                    schema: { $ref: '#/components/schemas/ErrorResponse' },
+                                    example: {
+                                        success: false,
+                                        message: 'Failed to fetch today\'s task',
+                                        error: 'INTERNAL_SERVER_ERROR'
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            '/api/v1/chat': {
+                post: {
+                    tags: ['Chat'],
+                    summary: 'Chat with Coach',
+                    description: 'Send a message to your AI coach and receive a response. Requires today\'s task to be generated first.',
+                    security: [{ BearerAuth: [] }],
+                    requestBody: {
+                        required: true,
+                        content: {
+                            'application/json': {
+                                schema: { $ref: '#/components/schemas/ChatRequest' },
+                                example: {
+                                    message: 'Hey coach, what should I focus on today?'
+                                }
+                            }
+                        }
+                    },
+                    responses: {
+                        '200': {
+                            description: 'Coach response',
+                            content: {
+                                'application/json': {
+                                    schema: { $ref: '#/components/schemas/ChatResponse' },
+                                    example: {
+                                        success: true,
+                                        data: 'Hey Aman! 👋 Here are your tasks for today: 1. Reflect on your recent progress in your focus area. 2. Set one small, achievable goal for today. 3. Take a 5-minute break to recharge. Let me know how you feel about these!'
+                                    }
+                                }
+                            }
+                        },
+                        '400': {
+                            description: 'Validation error or onboarding incomplete',
+                            content: {
+                                'application/json': {
+                                    schema: { $ref: '#/components/schemas/ErrorResponse' },
+                                    examples: {
+                                        onboardingIncomplete: {
+                                            value: {
+                                                success: false,
+                                                message: 'Onboarding data incomplete',
+                                                error: 'BAD_REQUEST'
+                                            },
+                                            summary: 'Onboarding incomplete'
+                                        },
+                                        noTask: {
+                                            value: {
+                                                success: false,
+                                                message: 'No task found for today. Please generate your daily task first.',
+                                                error: 'BAD_REQUEST'
+                                            },
+                                            summary: 'No task for today'
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        '401': {
+                            description: 'Authentication error',
+                            content: {
+                                'application/json': {
+                                    schema: { $ref: '#/components/schemas/ErrorResponse' },
+                                    example: {
+                                        success: false,
+                                        message: 'User not authenticated',
+                                        error: 'UNAUTHORIZED'
+                                    }
+                                }
+                            }
+                        },
+                        '500': {
+                            description: 'Server error',
+                            content: {
+                                'application/json': {
+                                    schema: { $ref: '#/components/schemas/ErrorResponse' },
+                                    example: {
+                                        success: false,
+                                        message: 'Failed to chat with coach',
+                                        error: 'INTERNAL_SERVER_ERROR'
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
             }
         },
         components: {
@@ -1426,6 +1672,40 @@ const options = {
                             type: 'string',
                             description: 'Optional note about the mood'
                         }
+                    }
+                },
+                ChatRequest: {
+                    type: 'object',
+                    required: ['message'],
+                    properties: {
+                        message: {
+                            type: 'string',
+                            description: 'The user\'s message to the coach.'
+                        }
+                    }
+                },
+                ChatResponse: {
+                    type: 'object',
+                    properties: {
+                        success: {
+                            type: 'boolean',
+                            example: true
+                        },
+                        data: {
+                            type: 'string',
+                            description: 'The coach\'s response message.'
+                        }
+                    }
+                },
+                UserTask: {
+                    type: 'object',
+                    properties: {
+                        id: { type: 'string', format: 'uuid', description: 'Unique task identifier' },
+                        userId: { type: 'string', format: 'uuid', description: 'User ID' },
+                        date: { type: 'string', description: 'Date for the task (YYYY-MM-DD)' },
+                        greeting: { type: 'string', description: 'Personalized greeting for the user' },
+                        task: { type: 'string', description: 'Task description (paragraph)' },
+                        createdAt: { type: 'string', format: 'date-time', description: 'Task creation timestamp' }
                     }
                 }
             }

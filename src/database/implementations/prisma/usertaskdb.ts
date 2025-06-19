@@ -1,20 +1,15 @@
-import { PrismaClient } from '../../../generated/prisma';
+import prisma from '../../../config/prisma';
 import { throwDBError, DBErrorResponse } from '../../../utils/error.utils';
-import { IFeedback } from '../../../types/feedback';
 
-export class FeedbackDatabase {
-  private prisma: PrismaClient;
+export class UserTaskDatabase {
 
-  constructor() {
-    this.prisma = new PrismaClient();
-  }
-
-  async createFeedback(userId: string, message: string, date: string) {
+  async createOrUpdateUserTask(userId: string, date: string, task: string,greeting:string) {
     try {
-      const feedback = await this.prisma.feedback.create({
-        data: { userId, message, date },
+      return await prisma.userTask.upsert({
+        where: { userId_date: { userId, date } },
+        update: { task },
+        create: { userId, date, task,greeting },
       });
-      return { data: feedback, error: null };
     } catch (error: any) {
       const dbError: DBErrorResponse = {
         code: error.code || 'UNKNOWN_ERROR',
@@ -26,13 +21,11 @@ export class FeedbackDatabase {
     }
   }
 
-  async getAllFeedbacks(userId: string) {
+  async getUserTaskForDate(userId: string, date: string) {
     try {
-      const feedbacks = await this.prisma.feedback.findMany({
-        where: { userId },
-        orderBy: { date: 'desc' },
+      return await prisma.userTask.findUnique({
+        where: { userId_date: { userId, date } },
       });
-      return { data: feedbacks, error: null };
     } catch (error: any) {
       const dbError: DBErrorResponse = {
         code: error.code || 'UNKNOWN_ERROR',

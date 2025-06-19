@@ -213,35 +213,147 @@ const options = {
                             description: 'Login successful',
                             content: {
                                 'application/json': {
-                                    schema: { $ref: '#/components/schemas/SuccessResponse' },
+                                    schema: {
+                                        type: 'object',
+                                        properties: {
+                                            success: {
+                                                type: 'boolean',
+                                                example: true
+                                            },
+                                            message: {
+                                                type: 'string',
+                                                example: 'Login successful'
+                                            },
+                                            data: {
+                                                type: 'object',
+                                                properties: {
+                                                    user: {
+                                                        type: 'object',
+                                                        properties: {
+                                                            id: {
+                                                                type: 'string',
+                                                                format: 'uuid'
+                                                            },
+                                                            name: {
+                                                                type: 'string'
+                                                            },
+                                                            email: {
+                                                                type: 'string',
+                                                                format: 'email'
+                                                            },
+                                                            otp: {
+                                                                type: 'string',
+                                                                nullable: true
+                                                            },
+                                                            is_verified: {
+                                                                type: 'boolean'
+                                                            },
+                                                            createdAt: {
+                                                                type: 'string',
+                                                                format: 'date-time'
+                                                            },
+                                                            updatedAt: {
+                                                                type: 'string',
+                                                                format: 'date-time'
+                                                            }
+                                                        }
+                                                    },
+                                                    onboarding: {
+                                                        type: 'object',
+                                                        properties: {
+                                                            userId: {
+                                                                type: 'string',
+                                                                format: 'uuid'
+                                                            },
+                                                            isOnBoardingCompleted: {
+                                                                type: 'boolean'
+                                                            },
+                                                            onboarding: {
+                                                                type: 'object',
+                                                                properties: {
+                                                                    focusArea: {
+                                                                        type: 'string',
+                                                                        enum: ['Money', 'Fitness', 'Mindset']
+                                                                    },
+                                                                    coachType: {
+                                                                        type: 'string',
+                                                                        enum: ['automatic', 'manual']
+                                                                    },
+                                                                    coachLook: {
+                                                                        type: 'string',
+                                                                        enum: ['male', 'female']
+                                                                    },
+                                                                    coachStyle: {
+                                                                        type: 'string',
+                                                                        enum: ['Motivational', 'Calm and Supportive', 'Not Accountability', 'Not Sure']
+                                                                    },
+                                                                    ageRange: {
+                                                                        type: 'string',
+                                                                        enum: ['18-25', '26-35', '36-45', '46-55', '55+']
+                                                                    },
+                                                                    gender: {
+                                                                        type: 'string',
+                                                                        enum: ['male', 'female', 'other', 'prefer-not-to-say']
+                                                                    },
+                                                                    planType: {
+                                                                        type: 'string',
+                                                                        enum: ['free', 'pro']
+                                                                    }
+                                                                }
+                                                            },
+                                                            nextOnBoardingStep: {
+                                                                type: 'number',
+                                                                description: 'Next step number in the onboarding process',
+                                                                minimum: 1,
+                                                                maximum: 6
+                                                            }
+                                                        }
+                                                    },
+                                                    accessToken: {
+                                                        type: 'string',
+                                                        description: 'JWT access token'
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    },
                                     example: {
                                         success: true,
-                                        message: 'Login successful',
+                                        message: "Login successful",
                                         data: {
                                             user: {
-                                                id: 'uuid',
-                                                name: 'John Doe',
-                                                email: 'john@example.com',
-                                                is_verified: true
+                                                id: "fe2cc874-ab46-41dc-824d-e82282716049",
+                                                name: "Test User",
+                                                email: "vaibhavtezan@gmail.com",
+                                                otp: null,
+                                                is_verified: true,
+                                                createdAt: "2025-06-18T13:27:14.418Z",
+                                                updatedAt: "2025-06-18T13:27:41.099Z"
                                             },
                                             onboarding: {
-                                                steps: [
-                                                    {
-                                                        onBoardingStep: 1,
-                                                        value: "Fitness",
-                                                        createdAt: "2024-01-01T00:00:00.000Z"
-                                                    },
-                                                    {
-                                                        onBoardingStep: 2,
-                                                        value: "automatic",
-                                                        createdAt: "2024-01-01T00:00:00.000Z"
-                                                    }
-                                                ],
-                                                isCompleted: false
+                                                userId: "fe2cc874-ab46-41dc-824d-e82282716049",
+                                                isOnBoardingCompleted: false,
+                                                onboarding: {
+                                                    focusArea: "Fitness",
+                                                    coachType: "automatic",
+                                                    coachLook: "male",
+                                                    coachStyle: "Motivational",
+                                                    ageRange: "26-35"
+                                                },
+                                                nextOnBoardingStep: 5
                                             },
-                                            accessToken: 'jwt-access-token'
+                                            accessToken: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiJmZTJjYzg3NC1hYjQ2LTQxZGMtODI0ZC1lODIyODI3MTYwNDkiLCJlbWFpbCI6InZhaWJoYXZ0ZXphbkBnbWFpbC5jb20iLCJuYW1lIjoiVGVzdCBVc2VyIiwiaWF0IjoxNzUwMzI2ODkyLCJleHAiOjE3NTA0MTMyOTIsImF1ZCI6InVzZXIiLCJpc3MiOiJhdXRoLXNlcnZpY2UifQ._OOIXBuwSsj-u78L2_g5a4DPqYj8Y3liJ21zR_TDlm0"
                                         }
                                     }
+                                }
+                            },
+                            headers: {
+                                'Set-Cookie': {
+                                    schema: {
+                                        type: 'string',
+                                        example: 'refreshToken=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...; Max-Age=604800; Path=/api/v1/auth/refresh; Expires=Thu, 26 Jun 2025 09:54:52 GMT; HttpOnly; SameSite=Strict'
+                                    },
+                                    description: 'HTTP-only cookie containing the refresh token'
                                 }
                             }
                         },

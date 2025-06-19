@@ -1067,13 +1067,18 @@ const options = {
                                 'application/json': {
                                     schema: { $ref: '#/components/schemas/SuccessResponse' },
                                     example: {
-                                        success: true,
-                                        message: 'Mood set successfully',
-                                        data: {
-                                            mood: 'Happy',
-                                            note: 'Feeling great!',
-                                            date: '2024-06-19'
-                                        }
+                                        
+                                            success: true,
+                                            data: {
+                                              id: "7b97a4b2-b485-49c2-b1d2-6889174eaa58",
+                                              userId: "fe2cc874-ab46-41dc-824d-e82282716049",
+                                              mood: "happy",
+                                              note: "string",
+                                              date: "2025-06-19",
+                                              createdAt: "2025-06-19T10:49:00.258Z",
+                                              updatedAt: "2025-06-19T11:14:31.129Z"
+                                            }
+                                          
                                     }
                                 }
                             }
@@ -1111,15 +1116,7 @@ const options = {
                     summary: 'Get mood',
                     description: 'Retrieve the mood for the authenticated user (optionally by date).',
                     security: [{ BearerAuth: [] }],
-                    parameters: [
-                        {
-                            in: 'query',
-                            name: 'date',
-                            schema: { type: 'string', format: 'date' },
-                            required: false,
-                            description: 'Date to filter mood (optional)'
-                        }
-                    ],
+                    parameters: [],
                     responses: {
                         '200': {
                             description: 'Mood retrieved successfully',
@@ -1129,11 +1126,16 @@ const options = {
                                     example: {
                                         success: true,
                                         data: {
-                                            mood: 'Calm',
-                                            note: 'Relaxed day',
-                                            date: '2024-06-18'
+                                          id: "7b97a4b2-b485-49c2-b1d2-6889174eaa58",
+                                          userId: "fe2cc874-ab46-41dc-824d-e82282716049",
+                                          mood: "happy",
+                                          note: "string",
+                                          date: "2025-06-19",
+                                          createdAt: "2025-06-19T10:49:00.258Z",
+                                          updatedAt: "2025-06-19T11:14:31.129Z"
                                         }
-                                    }
+                                      
+                                }
                                 }
                             }
                         },

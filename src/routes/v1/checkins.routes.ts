@@ -1,6 +1,6 @@
 import { Router } from 'express';
-import { checkInToday, getAllCheckins, getTodayCheckin } from '../../../controller/checkin.controller';
-import { authenticate } from '../../../middleware/authorizer.middleware';
+import { checkInToday, getAllCheckins, getTodayCheckin } from '../../controller/checkin.controller';
+import { authenticate } from '../../middleware/authorizer.middleware';
 
 const router = Router();
 

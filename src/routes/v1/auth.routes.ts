@@ -1,8 +1,8 @@
 import { Router } from "express";
-import * as authController from "../../../controller/auth.controller";
-import { validateRequest } from "../../../middleware/validateRequest";
-import { signupSchema, signinSchema, forgotPasswordSchema, resetPasswordSchema, verifyOTPSchema, resendOTPSchema, refreshTokenSchema } from "../../../validation/auth.validation";
-import { tryCatchHandler } from "../../../middleware/error.middleware";
+import * as authController from "../../controller/auth.controller";
+import { validateRequest } from "../../middleware/validateRequest";
+import { signupSchema, signinSchema, forgotPasswordSchema, resetPasswordSchema, verifyOTPSchema, resendOTPSchema, refreshTokenSchema } from "../../validation/auth.validation";
+import { tryCatchHandler } from "../../middleware/error.middleware";
 
 const router = Router();
 

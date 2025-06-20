@@ -1,9 +1,9 @@
 import { Router } from 'express';
-import * as onboardingController from '../../../controller/onboarding.controller';
-import { validateRequest } from '../../../middleware/validateRequest';
-import { onboardingSchema } from '../../../validation/onboarding.validation';
-import { tryCatchHandler } from '../../../middleware/error.middleware';
-import { authenticate } from '../../../middleware/authorizer.middleware';
+import * as onboardingController from '../../controller/onboarding.controller';
+import { validateRequest } from '../../middleware/validateRequest';
+import { onboardingSchema } from '../../validation/onboarding.validation';
+import { tryCatchHandler } from '../../middleware/error.middleware';
+import { authenticate } from '../../middleware/authorizer.middleware';
 
 const router = Router();
 

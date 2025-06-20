@@ -10,7 +10,6 @@ const _onboardingService = new OnboardingService();
 export async function chatWithCoachV2(req: Request, res: Response) {
     const userId = req.user?.userId;
     const { message } = req.body; 
-    try {
         const date = moment().format('YYYY-MM-DD');
         const onboarding = await _onboardingService.getOnboarding(userId as string) as { onboarding: any };
         const onboardingData = onboarding.onboarding;
@@ -23,23 +22,13 @@ export async function chatWithCoachV2(req: Request, res: Response) {
             ageRange: onboardingData.ageRange,
             username:req.user?.name  ||"",
         };
-       
         const coachReply = await chatMessageService.handleUserMessage(userId as string, message, onboardingPrefs,date);
         res.status(200).json({ success: true, data: coachReply });
-    } catch (error: any) {
-        res.status(500).json({ success: false, message: error.message || 'Failed to chat with coach' });
-    }
 }
 
 export async function getUserChatMessages(req: Request, res: Response) {
     const userId = req.user?.userId;
-    if (!userId) {
-        return res.status(401).json({ success: false, message: 'Unauthorized' });
-    }
-    try {
-        const messages = await chatMessageService.getAllChatMessagesForUser(userId);
-        res.status(200).json({ success: true, data: messages });
-    } catch (error: any) {
-        res.status(500).json({ success: false, message: error.message || 'Failed to fetch chat messages' });
-    }
+    const messages = await chatMessageService.getAllChatMessagesForUser(userId as string);
+    res.status(200).json({ success: true, data: messages });
+
 } 

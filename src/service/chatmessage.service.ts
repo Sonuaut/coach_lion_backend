@@ -22,9 +22,7 @@ export class ChatMessageService {
       ]);
   
       if (!taskRow) throw new Error('No task found for today. Please generate your daily task first.');
-  
       const messages = generateChatPrompt(onboardingPrefs, taskRow.task, rawHistory ?? [], userMessage);
-  
       const completion = await openai.chat.completions.create({
         model: 'gpt-4',
         messages,
@@ -53,5 +51,9 @@ export class ChatMessageService {
   
   async getTodaysChatHistory(userId: string, date: string) {
     return await chatDB.getMessagesForDate(userId, date);
+  }
+
+  async getAllChatMessagesForUser(userId: string) {
+    return await chatDB.getAllMessagesForUser(userId);
   }
 } 

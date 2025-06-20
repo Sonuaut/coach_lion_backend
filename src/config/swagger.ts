@@ -1399,6 +1399,64 @@ const options = {
                             }
                         }
                     }
+                },
+                get: {
+                    tags: ['Chat'],
+                    summary: 'Get all chat messages',
+                    description: 'Retrieve all chat messages for the authenticated user, in the order the conversation happened.',
+                    security: [{ BearerAuth: [] }],
+                    responses: {
+                        '200': {
+                            description: 'Chat messages retrieved successfully',
+                            content: {
+                                'application/json': {
+                                    schema: {
+                                        type: 'object',
+                                        properties: {
+                                            success: { type: 'boolean', example: true },
+                                            data: {
+                                                type: 'array',
+                                                items: { $ref: '#/components/schemas/ChatMessage' }
+                                            }
+                                        }
+                                    },
+                                    example: {
+                                        success: true,
+                                        data: [
+                                            { role: 'user', message: 'Hi coach!', date: '2025-06-20', time: '2025-06-20T08:00:00.000Z' },
+                                            { role: 'assistant', message: 'Hello! How can I help you today?', date: '2025-06-20', time: '2025-06-20T08:00:01.000Z' }
+                                        ]
+                                    }
+                                }
+                            }
+                        },
+                        '401': {
+                            description: 'User not authenticated',
+                            content: {
+                                'application/json': {
+                                    schema: { $ref: '#/components/schemas/ErrorResponse' },
+                                    example: {
+                                        success: false,
+                                        message: 'User not authenticated',
+                                        error: 'UNAUTHORIZED'
+                                    }
+                                }
+                            }
+                        },
+                        '500': {
+                            description: 'Server error',
+                            content: {
+                                'application/json': {
+                                    schema: { $ref: '#/components/schemas/ErrorResponse' },
+                                    example: {
+                                        success: false,
+                                        message: 'Failed to fetch chat messages',
+                                        error: 'INTERNAL_SERVER_ERROR'
+                                    }
+                                }
+                            }
+                        }
+                    }
                 }
             }
         },
@@ -1706,6 +1764,29 @@ const options = {
                         greeting: { type: 'string', description: 'Personalized greeting for the user' },
                         task: { type: 'string', description: 'Task description (paragraph)' },
                         createdAt: { type: 'string', format: 'date-time', description: 'Task creation timestamp' }
+                    }
+                },
+                ChatMessage: {
+                    type: 'object',
+                    properties: {
+                        role: {
+                            type: 'string',
+                            enum: ['user', 'assistant'],
+                            description: 'The role of the message sender.'
+                        },
+                        message: {
+                            type: 'string',
+                            description: 'The chat message content.'
+                        },
+                        date: {
+                            type: 'string',
+                            description: 'The date of the message (YYYY-MM-DD).'
+                        },
+                        time: {
+                            type: 'string',
+                            format: 'date-time',
+                            description: 'The timestamp when the message was created.'
+                        }
                     }
                 }
             }

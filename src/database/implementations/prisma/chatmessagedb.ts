@@ -81,4 +81,35 @@ export class ChatMessageDatabase {
     }
   }
   
+  async getAllMessagesForUser(userId: string) {
+    try {
+      const messages = await prisma.chatMessage.findMany({
+        where: {
+          userId,
+          role: { in: ['user', 'assistant'] }
+        },
+        orderBy: { createdAt: 'asc' },
+        select: {
+          role: true,
+          message: true,
+          createdAt: true,
+          date: true
+        }
+      });
+      return messages.map((m: any) => ({
+        role: m.role as 'user' | 'assistant' ,
+        message: m.message,
+        date: m.date,
+        time: m.createdAt
+      }));
+    } catch (error: any) {
+      const dbError: DBErrorResponse = {
+        code: error.code || 'UNKNOWN_ERROR',
+        message: error.message || 'Failed to fetch all chat messages',
+        details: error.details || 'Unknown database error during fetch',
+        hint: error.hint || null
+      };
+      throwDBError(dbError);
+    }
+  }
 }
